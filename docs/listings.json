@@ -1,7 +1,9 @@
 [
   {
     "listing": "/assignments/index.html",
-    "items": []
+    "items": [
+      "/assignments/week-01.html"
+    ]
   },
   {
     "listing": "/weekly-notes/index.html",

@@ -12,5 +12,3 @@ listing:
 
 Completed assignments for MUSA 5080. New assignments appear here automatically
 once you add the `.qmd` file to this folder and render.
-
-1. **Week 1**: This website!
