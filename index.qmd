@@ -33,8 +33,9 @@ urban policy questions.
 
 ## About Me
 
-I'm a MUSA (Master's of Urban Spatial Analytics) student at the University
-of Pennsylvania. My background is in urban planning and design.
+I'm a MUSA student at Penn. My background is in urban planning and design.
+
+I grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!
 
 :::
 
@@ -42,9 +43,9 @@ of Pennsylvania. My background is in urban planning and design.
 
 ## Skills
 
-Spatial analysis, GIS, data visualisation, urban design, quantitative methods.
+* Spatial analysis, GIS, data visualisation, urban design, quantitative methods.
 
-**Tools:** QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata
+* **Tools:** QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata
 
 :::
 

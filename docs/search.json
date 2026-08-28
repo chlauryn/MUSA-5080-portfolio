@@ -4,14 +4,14 @@
     "href": "index.html",
     "title": "Home",
     "section": "",
-    "text": "Welcome to my portfolio for MUSA 5080: Public Policy Analytics at the University of Pennsylvania.\nThis site documents my work in the Master of Urban Spatial Analytics program — weekly notes, course assignments, and a final project applying data analysis to urban policy questions.\n\n\n\n\n\n\n\nI’m a MUSA (Master’s of Urban Spatial Analytics) student at the University of Pennsylvania. My background is in urban planning and design.\n\n\n\n\nSpatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata\n\n\n\n\n\n\nWeekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me\n\n\n\n\n\n\nEmail: chlauryn@upenn.edu\nGitHub: @chlauryn"
+    "text": "Welcome to my portfolio for MUSA 5080: Public Policy Analytics at the University of Pennsylvania.\nThis site documents my work in the Master of Urban Spatial Analytics program — weekly notes, course assignments, and a final project applying data analysis to urban policy questions.\n\n\n\n\n\n\n\nI’m a MUSA student at Penn. My background is in urban planning and design.\nI grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!\n\n\n\n\n\nSpatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata\n\n\n\n\n\n\n\nWeekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me\n\n\n\n\n\n\nEmail: chlauryn@upenn.edu\nGitHub: @chlauryn"
   },
   {
     "objectID": "index.html#about-me",
     "href": "index.html#about-me",
     "title": "Home",
     "section": "",
-    "text": "I’m a MUSA (Master’s of Urban Spatial Analytics) student at the University of Pennsylvania. My background is in urban planning and design."
+    "text": "I’m a MUSA student at Penn. My background is in urban planning and design.\nI grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!"
   },
   {
     "objectID": "index.html#what-youll-find-here",
@@ -131,5 +131,19 @@
     "title": "Home",
     "section": "",
     "text": "Spatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata"
+  },
+  {
+    "objectID": "about.html#portfolio",
+    "href": "about.html#portfolio",
+    "title": "About Me!",
+    "section": "Portfolio",
+    "text": "Portfolio\nhello View my portfolio 2026 here (PDF)"
+  },
+  {
+    "objectID": "about.html#get-in-touch",
+    "href": "about.html#get-in-touch",
+    "title": "About Me!",
+    "section": "Get in Touch",
+    "text": "Get in Touch\n\nEmail: chlauryn@upenn.edu\nGitHub: @chlauryn"
   }
 ]

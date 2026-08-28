@@ -4,8 +4,7 @@ title: "About Me!"
 
 ## Background
 
-<!-- CHANGE THIS -->
-
+test test
 Write a few paragraphs about yourself here: where you came from before MUSA,
 what drew you to urban spatial analytics, and what you're hoping to do with it.
 
@@ -17,9 +16,11 @@ what drew you to urban spatial analytics, and what you're hoping to do with it.
 - **Spatial:** (add as you learn)
 - **Data:** US Census / ACS via `tidycensus`
 
-## Contact
+## Portfolio
+hello
+[View my portfolio 2026 here (PDF)](data/img/portfolio.pdf)
 
-<!-- CHANGE THIS -->
+## Get in Touch
 
-- Email: your-email@upenn.edu
-- GitHub: [@your-username](https://github.com/your-username)
+- Email: chlauryn@upenn.edu
+- GitHub: [@chlauryn](https://github.com/chlauryn)
