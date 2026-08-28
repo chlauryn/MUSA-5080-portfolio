@@ -1,26 +1,27 @@
 ---
 title: "About Me!"
+format: html
 ---
 
 ## Background
 
-test test
-Write a few paragraphs about yourself here: where you came from before MUSA,
-what drew you to urban spatial analytics, and what you're hoping to do with it.
+I just graduated from University College London in BSc Urban Studies, where I was first introduced to the world of spatial analysis. A year ago, I built my first map in QGIS, layering London’s air pollution over its social housing. What began as an experiment in technical flair turned into a moment of reckoning. The darkest reds traced the city’s most deprived neighborhoods, exposing inequality in color. That map taught me that data can clarify or conceal truth, reinforcing my beief that evidence-based approaches are foundational in making equitable and transparent policy decisions.
+
+At Penn, I'm hoping to deepen my skills in geospatial analysis, machine learning, and data integration, while learning how to translate these insights into actionable strategies for policymakers and communities alike.
+
 
 ## Skills
 
-<!-- CHANGE THIS: update this through the semester as it becomes true -->
-
-- **Languages & Tools:** R, Quarto, Git
-- **Spatial:** (add as you learn)
-- **Data:** US Census / ACS via `tidycensus`
+- **Languages & Tools:** R, Python, Quarto, Git
+- **Spatial:** QGIS, ENVI, Google Earth Engine
+- **Data:** UK ONS Census, Singapore Census & LTA Datamall, US Census / ACS (soon)
 
 ## Portfolio
-hello
-[View my portfolio 2026 here (PDF)](data/img/portfolio.pdf)
+View my **Portfolio 2026** [here](data/img/portfolio.pdf)!
+<iframe src="data/img/portfolio.pdf" width="100%" height="600px"></iframe>
 
 ## Get in Touch
 
 - Email: chlauryn@upenn.edu
 - GitHub: [@chlauryn](https://github.com/chlauryn)
+
