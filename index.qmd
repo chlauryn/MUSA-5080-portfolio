@@ -1,10 +1,18 @@
 ---
 title: "Home"
+headshot: /data/img/profilepic1.jpg
 ---
 
-# YOUR NAME HERE {#welcome}
+# Lauryn Chan {#welcome}
 
 <!-- CHANGE THIS: replace with your own name above -->
+::: {.columns}
+
+::: {.column width="30%"}
+![]({{< meta headshot >}}){width=80%}
+:::
+
+::: {.column width="70%"}
 
 Welcome to my portfolio for **MUSA 5080: Public Policy Analytics** at the
 University of Pennsylvania.
@@ -13,12 +21,34 @@ This site documents my work in the Master of Urban Spatial Analytics program —
 weekly notes, course assignments, and a final project applying data analysis to
 urban policy questions.
 
-## About Me
+:::
+
+:::
 
 <!-- CHANGE THIS: two or three sentences about yourself -->
 
-I'm a student in the MUSA program at Penn. My background is in
-[YOUR BACKGROUND], and I'm interested in [YOUR INTERESTS].
+::: {.columns}
+
+::: {.column width="50%"}
+
+## About Me
+
+I'm a MUSA (Master's of Urban Spatial Analytics) student at the University
+of Pennsylvania. My background is in urban planning and design.
+
+:::
+
+::: {.column width="50%"}
+
+## Skills
+
+Spatial analysis, GIS, data visualisation, urban design, quantitative methods.
+
+**Tools:** QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata
+
+:::
+
+:::
 
 ## What You'll Find Here
 
@@ -30,5 +60,7 @@ I'm a student in the MUSA program at Penn. My background is in
 
 <!-- CHANGE THIS -->
 
-- Email: your-email@upenn.edu
-- GitHub: [@your-username](https://github.com/your-username)
+- Email: chlauryn@upenn.edu
+- GitHub: [@chlauryn](https://github.com/chlauryn)
+
+

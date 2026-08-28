@@ -4,14 +4,14 @@
     "href": "index.html",
     "title": "Home",
     "section": "",
-    "text": "Welcome to my portfolio for MUSA 5080: Public Policy Analytics at the University of Pennsylvania.\nThis site documents my work in the Master of Urban Spatial Analytics program — weekly notes, course assignments, and a final project applying data analysis to urban policy questions.\n\n\n\nI’m a student in the MUSA program at Penn. My background is in [YOUR BACKGROUND], and I’m interested in [YOUR INTERESTS].\n\n\n\n\nWeekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me\n\n\n\n\n\n\nEmail: your-email@upenn.edu\nGitHub: @your-username"
+    "text": "Welcome to my portfolio for MUSA 5080: Public Policy Analytics at the University of Pennsylvania.\nThis site documents my work in the Master of Urban Spatial Analytics program — weekly notes, course assignments, and a final project applying data analysis to urban policy questions.\n\n\n\n\n\n\n\nI’m a MUSA (Master’s of Urban Spatial Analytics) student at the University of Pennsylvania. My background is in urban planning and design.\n\n\n\n\nSpatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata\n\n\n\n\n\n\nWeekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me\n\n\n\n\n\n\nEmail: chlauryn@upenn.edu\nGitHub: @chlauryn"
   },
   {
     "objectID": "index.html#about-me",
     "href": "index.html#about-me",
     "title": "Home",
     "section": "",
-    "text": "I’m a student in the MUSA program at Penn. My background is in [YOUR BACKGROUND], and I’m interested in [YOUR INTERESTS]."
+    "text": "I’m a MUSA (Master’s of Urban Spatial Analytics) student at the University of Pennsylvania. My background is in urban planning and design."
   },
   {
     "objectID": "index.html#what-youll-find-here",
@@ -25,14 +25,14 @@
     "href": "index.html#get-in-touch",
     "title": "Home",
     "section": "",
-    "text": "Email: your-email@upenn.edu\nGitHub: @your-username"
+    "text": "Email: chlauryn@upenn.edu\nGitHub: @chlauryn"
   },
   {
     "objectID": "weekly-notes/week-01.html",
     "href": "weekly-notes/week-01.html",
     "title": "Week 1: Getting Set Up",
     "section": "",
-    "text": "Set up the portfolio workflow: made a repository from a template, cloned it with GitHub Desktop, edited files in RStudio, rendered with Quarto, and published to GitHub Pages."
+    "text": "Three places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
   },
   {
     "objectID": "weekly-notes/week-01.html#what-we-did",
@@ -45,29 +45,29 @@
     "objectID": "weekly-notes/week-01.html#key-concepts",
     "href": "weekly-notes/week-01.html#key-concepts",
     "title": "Week 1: Getting Set Up",
-    "section": "Key Concepts",
-    "text": "Key Concepts\nThree places a file can live:\n\nMy computer — where I edit\nGitHub.com — where it’s stored\nMy live site — what the world sees\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+    "section": "",
+    "text": "Three places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
   },
   {
     "objectID": "weekly-notes/week-01.html#proving-r-works",
     "href": "weekly-notes/week-01.html#proving-r-works",
     "title": "Week 1: Getting Set Up",
     "section": "Proving R Works",
-    "text": "Proving R Works\nThe chunk below runs when this page renders. If you can see a result underneath it on your published site, R and Quarto are talking to each other correctly.\n\nsessionInfo()$R.version$version.string\n\n[1] \"R version 4.6.0 (2026-04-24)\""
+    "text": "Proving R Works\nThe chunk below runs when this page renders. If you can see a result underneath it on your published site, R and Quarto are talking to each other correctly.\n\nsessionInfo()$R.version$version.string\n\n[1] \"R version 4.6.1 (2026-06-24 ucrt)\""
   },
   {
     "objectID": "weekly-notes/week-01.html#reflection",
     "href": "weekly-notes/week-01.html#reflection",
     "title": "Week 1: Getting Set Up",
     "section": "Reflection",
-    "text": "Reflection\n\nWhat I want out of this course:\nOne thing I’m nervous about:"
+    "text": "Reflection\n\nI have done spatial analysis in R before but only in RScript (and then manually exported into InDesign) without using github. I am excited about using Quarto to create a more seamless transition into Github.com and other digital media.\nOne thing I’m nervous about: Saving all the files in the right place!"
   },
   {
     "objectID": "weekly-notes/week-01.html#questions-i-still-have",
     "href": "weekly-notes/week-01.html#questions-i-still-have",
     "title": "Week 1: Getting Set Up",
     "section": "Questions I Still Have",
-    "text": "Questions I Still Have"
+    "text": "Questions I Still Have\n\nI am still not sure how to add more .qmd files to the repo in the correct folder.\nIf I press render, does that render all qmd files in the repo, or just the one I have open?"
   },
   {
     "objectID": "about.html",
@@ -117,5 +117,19 @@
     "title": "",
     "section": "",
     "text": "Code\n\n\n\n\nData files for MUSA 5080\nDownload assignment data from Canvas and save it here. Do not rename the files! Have a nice day :)"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#todays-workflow",
+    "href": "weekly-notes/week-01.html#todays-workflow",
+    "title": "Week 1: Getting Set Up",
+    "section": "Today’s workflow",
+    "text": "Today’s workflow\n\n\nCopy github template from lecturer\nTemplate button → clone\nName github folder. Public\nOn personal github, click Code → open with github desktop → clone onto LOCAL computer\nOn file explorer, open Rproj folder → open on RStudio\nMake changes on like /qmd or /yml files. Then save as you go\nWhen you are all done, click Render, then it will save to LOCAL website.\nThen go to Github desktop → commit changes → Push button\nThen if you make the website page, it should show there\nGithub → settings → pages → website link should be there\nTO CREATE WEBSITE: deploy from a branch → main branch → /docs (which is a folder of html files that make a website) → save"
+  },
+  {
+    "objectID": "index.html#skills",
+    "href": "index.html#skills",
+    "title": "Home",
+    "section": "",
+    "text": "Spatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata"
   }
 ]
