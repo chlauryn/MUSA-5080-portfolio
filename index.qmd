@@ -1,6 +1,9 @@
 ---
 title: "Home"
 headshot: /data/img/profilepic1.jpg
+format:
+  html:
+    theme: flatly
 ---
 
 # Lauryn Chan {#welcome}
