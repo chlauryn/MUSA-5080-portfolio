@@ -1,0 +1,15 @@
+{
+  "hash": "3949ad573b7f187177457f3fdf0c7e0f",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Week 2: dplyr\"\ndescription: \"First impressions, and getting the workflow running.\"\ndate: 2026-09-04\n---\n\n## Markdown basics\n### A recap!\n\n1. #: Headings\n2.\n\n## Key Concepts\n\nThree places a file can live:\n\n1. **My computer** - where I edit\n2. **GitHub.com** - where it's stored\n3. **My live site** - what the world sees\n\nTypes of files and folders:\n\n1. **For me** - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\n1. **For the machine** - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: **Edit → Save → Render → Commit → Push → wait → refresh**\n\n\n## Today's workflow\n\n<!-- CHANGE THIS: replace with your own notes -->\n\n* Copy github template from lecturer\n* Template button → clone\n* Name github folder. Public\n* On personal github, click Code → open with github desktop → clone onto LOCAL computer\n* On file explorer, open Rproj folder → open on RStudio\n* Make changes on like /qmd or /yml files. Then save as you go\n* When you are all done, click Render, then it will save to LOCAL website. \n* Then go to Github desktop → commit changes → Push button\n* Then if you make the website page, it should show there\n* Github → settings → pages → website link should be there\n* TO CREATE WEBSITE: deploy from a branch → main branch → /docs (which is a folder of html files that make a website) → save\n\n<!-- ## Proving R Works\n\nThe chunk below runs when this page renders. If you can see a result underneath\nit on your published site, R and Quarto are talking to each other correctly.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nsessionInfo()$R.version$version.string\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n[1] \"R version 4.6.1 (2026-06-24 ucrt)\"\n```\n\n\n:::\n:::\n\n-->\n\n## Reflection\n\n<!-- CHANGE THIS: 3-4 sentences -->\n\nI have done spatial analysis in R before but only in RScript (and then manually exported into InDesign) without using github. I am excited about using Quarto to create a more seamless transition into Github.com and other digital media.\n\nOne thing I'm nervous about: Saving all the files in the right place!\n\n## Questions I Still Have\n\n1. I am still not sure how to add more .qmd files to the repo in the correct folder.\n2. If I press render, does that render all qmd files in the repo, or just the one I have open?\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

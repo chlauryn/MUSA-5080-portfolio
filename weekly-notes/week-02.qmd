@@ -1,17 +1,19 @@
 ---
-title: "Week 1: Getting Set Up"
-description: "First impressions, and getting the workflow running."
-date: 2026-08-28
+title: "Week 2: dplyr and The Census"
+description: "rrrrr"
+date: 2026-09-04
 ---
+
+## Markdown basics
+### A recap!
+
+1. #: Headings
+2.
 
 ## Key Concepts
 
-Quarto is a publishing system mixing writing and code directly into a nice final document.
-1. Writing in Markdown
-2. Embedded R Code (+ tables, plots, results) in chunks
-3. Quarto can render the document as a webpage (without needing any HTML code!), PDF, slide deck, or Word file.
-
 Three places a file can live:
+
 1. **My computer** - where I edit
 2. **GitHub.com** - where it's stored
 3. **My live site** - what the world sees

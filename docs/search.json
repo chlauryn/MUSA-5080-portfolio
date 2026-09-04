@@ -1,66 +1,66 @@
 [
   {
-    "objectID": "weekly-notes/week-01.html",
-    "href": "weekly-notes/week-01.html",
-    "title": "Week 1: Getting Set Up",
+    "objectID": "weekly-notes/week-02.html",
+    "href": "weekly-notes/week-02.html",
+    "title": "Week 2: dplyr",
     "section": "",
-    "text": "Three places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+    "text": "#: Headings"
   },
   {
-    "objectID": "weekly-notes/week-01.html#key-concepts",
-    "href": "weekly-notes/week-01.html#key-concepts",
-    "title": "Week 1: Getting Set Up",
+    "objectID": "weekly-notes/week-02.html#markdown-basics",
+    "href": "weekly-notes/week-02.html#markdown-basics",
+    "title": "Week 2: dplyr",
     "section": "",
-    "text": "Three places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+    "text": "#: Headings"
   },
   {
-    "objectID": "weekly-notes/week-01.html#todays-workflow",
-    "href": "weekly-notes/week-01.html#todays-workflow",
-    "title": "Week 1: Getting Set Up",
+    "objectID": "weekly-notes/week-02.html#key-concepts",
+    "href": "weekly-notes/week-02.html#key-concepts",
+    "title": "Week 2: dplyr",
+    "section": "Key Concepts",
+    "text": "Key Concepts\nThree places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+  },
+  {
+    "objectID": "weekly-notes/week-02.html#todays-workflow",
+    "href": "weekly-notes/week-02.html#todays-workflow",
+    "title": "Week 2: dplyr",
     "section": "Today’s workflow",
     "text": "Today’s workflow\n\n\nCopy github template from lecturer\nTemplate button → clone\nName github folder. Public\nOn personal github, click Code → open with github desktop → clone onto LOCAL computer\nOn file explorer, open Rproj folder → open on RStudio\nMake changes on like /qmd or /yml files. Then save as you go\nWhen you are all done, click Render, then it will save to LOCAL website.\nThen go to Github desktop → commit changes → Push button\nThen if you make the website page, it should show there\nGithub → settings → pages → website link should be there\nTO CREATE WEBSITE: deploy from a branch → main branch → /docs (which is a folder of html files that make a website) → save"
   },
   {
-    "objectID": "weekly-notes/week-01.html#reflection",
-    "href": "weekly-notes/week-01.html#reflection",
-    "title": "Week 1: Getting Set Up",
+    "objectID": "weekly-notes/week-02.html#reflection",
+    "href": "weekly-notes/week-02.html#reflection",
+    "title": "Week 2: dplyr",
     "section": "Reflection",
     "text": "Reflection\n\nI have done spatial analysis in R before but only in RScript (and then manually exported into InDesign) without using github. I am excited about using Quarto to create a more seamless transition into Github.com and other digital media.\nOne thing I’m nervous about: Saving all the files in the right place!"
   },
   {
-    "objectID": "weekly-notes/week-01.html#questions-i-still-have",
-    "href": "weekly-notes/week-01.html#questions-i-still-have",
-    "title": "Week 1: Getting Set Up",
+    "objectID": "weekly-notes/week-02.html#questions-i-still-have",
+    "href": "weekly-notes/week-02.html#questions-i-still-have",
+    "title": "Week 2: dplyr",
     "section": "Questions I Still Have",
     "text": "Questions I Still Have\n\nI am still not sure how to add more .qmd files to the repo in the correct folder.\nIf I press render, does that render all qmd files in the repo, or just the one I have open?"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Home",
+    "objectID": "weekly-notes/index.html",
+    "href": "weekly-notes/index.html",
+    "title": "Weekly Notes",
     "section": "",
-    "text": "Welcome to my portfolio for MUSA 5080: Public Policy Analytics at the University of Pennsylvania.\nThis site documents my work in the Master of Urban Spatial Analytics program — weekly notes, course assignments, and a final project applying data analysis to urban policy questions.\n\n\n\n\n\n\n\nI’m a MUSA student at Penn. My background is in urban planning and design.\nI grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!\n\n\n\n\n\nSpatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata\n\n\n\n\n\n\n\nWeekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me"
+    "text": "Notes from each week of MUSA 5080. New entries appear here automatically — add a .qmd file to this folder and render.\n\n\n\n\n\n\n\n\n\n\n\nWeek 2: dplyr\n\n\nFirst impressions, and getting the workflow running.\n\n\n\n\n\nSep 4, 2026\n\n\n\n\n\n\n\nWeek 1: Getting Set Up\n\n\nFirst impressions, and getting the workflow running.\n\n\n\n\n\nAug 28, 2026\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "index.html#about-me",
-    "href": "index.html#about-me",
-    "title": "Home",
+    "objectID": "data/readme.html",
+    "href": "data/readme.html",
+    "title": "",
     "section": "",
-    "text": "I’m a MUSA student at Penn. My background is in urban planning and design.\nI grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!"
+    "text": "Code\n\n\n\n\nData files for MUSA 5080\nDownload assignment data from Canvas and save it here. Do not rename the files! Have a nice day :)"
   },
   {
-    "objectID": "index.html#skills",
-    "href": "index.html#skills",
-    "title": "Home",
+    "objectID": "assignments/index.html",
+    "href": "assignments/index.html",
+    "title": "Assignments",
     "section": "",
-    "text": "Spatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata"
-  },
-  {
-    "objectID": "index.html#what-youll-find-here",
-    "href": "index.html#what-youll-find-here",
-    "title": "Home",
-    "section": "",
-    "text": "Weekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me"
+    "text": "Completed assignments for MUSA 5080. New assignments appear here automatically once you add the .qmd file to this folder and render.\n\n\n\n\n\n\n\n\n\n\n\nWeek 1: This website\n\n\nAs seen!\n\n\n\n\n\nAug 28, 2026\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -98,24 +98,66 @@
     "text": "Get in Touch\n\nEmail: chlauryn@upenn.edu\nGitHub: @chlauryn"
   },
   {
-    "objectID": "assignments/index.html",
-    "href": "assignments/index.html",
-    "title": "Assignments",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Home",
     "section": "",
-    "text": "Completed assignments for MUSA 5080. New assignments appear here automatically once you add the .qmd file to this folder and render.\n\n\n\n\n\n\n\n\n\n\n\nWeek 1: This website\n\n\nAs seen!\n\n\n\n\n\nAug 28, 2026\n\n\n\n\n\nNo matching items"
+    "text": "Welcome to my portfolio for MUSA 5080: Public Policy Analytics at the University of Pennsylvania.\nThis site documents my work in the Master of Urban Spatial Analytics program — weekly notes, course assignments, and a final project applying data analysis to urban policy questions.\n\n\n\n\n\n\n\nI’m a MUSA student at Penn. My background is in urban planning and design.\nI grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!\n\n\n\n\n\nSpatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata\n\n\n\n\n\n\n\nWeekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me"
   },
   {
-    "objectID": "data/readme.html",
-    "href": "data/readme.html",
-    "title": "",
+    "objectID": "index.html#about-me",
+    "href": "index.html#about-me",
+    "title": "Home",
     "section": "",
-    "text": "Code\n\n\n\n\nData files for MUSA 5080\nDownload assignment data from Canvas and save it here. Do not rename the files! Have a nice day :)"
+    "text": "I’m a MUSA student at Penn. My background is in urban planning and design.\nI grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!"
   },
   {
-    "objectID": "weekly-notes/index.html",
-    "href": "weekly-notes/index.html",
-    "title": "Weekly Notes",
+    "objectID": "index.html#skills",
+    "href": "index.html#skills",
+    "title": "Home",
     "section": "",
-    "text": "Notes from each week of MUSA 5080. New entries appear here automatically — add a .qmd file to this folder and render.\n\n\n\n\n\n\n\n\n\n\n\nWeek 1: Getting Set Up\n\n\nFirst impressions, and getting the workflow running.\n\n\n\n\n\nAug 28, 2026\n\n\n\n\n\nNo matching items"
+    "text": "Spatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata"
+  },
+  {
+    "objectID": "index.html#what-youll-find-here",
+    "href": "index.html#what-youll-find-here",
+    "title": "Home",
+    "section": "",
+    "text": "Weekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html",
+    "href": "weekly-notes/week-01.html",
+    "title": "Week 1: Getting Set Up",
+    "section": "",
+    "text": "Three places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#key-concepts",
+    "href": "weekly-notes/week-01.html#key-concepts",
+    "title": "Week 1: Getting Set Up",
+    "section": "",
+    "text": "Three places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#todays-workflow",
+    "href": "weekly-notes/week-01.html#todays-workflow",
+    "title": "Week 1: Getting Set Up",
+    "section": "Today’s workflow",
+    "text": "Today’s workflow\n\n\nCopy github template from lecturer\nTemplate button → clone\nName github folder. Public\nOn personal github, click Code → open with github desktop → clone onto LOCAL computer\nOn file explorer, open Rproj folder → open on RStudio\nMake changes on like /qmd or /yml files. Then save as you go\nWhen you are all done, click Render, then it will save to LOCAL website.\nThen go to Github desktop → commit changes → Push button\nThen if you make the website page, it should show there\nGithub → settings → pages → website link should be there\nTO CREATE WEBSITE: deploy from a branch → main branch → /docs (which is a folder of html files that make a website) → save"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#reflection",
+    "href": "weekly-notes/week-01.html#reflection",
+    "title": "Week 1: Getting Set Up",
+    "section": "Reflection",
+    "text": "Reflection\n\nI have done spatial analysis in R before but only in RScript (and then manually exported into InDesign) without using github. I am excited about using Quarto to create a more seamless transition into Github.com and other digital media.\nOne thing I’m nervous about: Saving all the files in the right place!"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#questions-i-still-have",
+    "href": "weekly-notes/week-01.html#questions-i-still-have",
+    "title": "Week 1: Getting Set Up",
+    "section": "Questions I Still Have",
+    "text": "Questions I Still Have\n\nI am still not sure how to add more .qmd files to the repo in the correct folder.\nIf I press render, does that render all qmd files in the repo, or just the one I have open?"
   }
 ]
