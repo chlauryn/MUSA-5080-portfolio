@@ -2,42 +2,42 @@
   {
     "objectID": "weekly-notes/week-02.html",
     "href": "weekly-notes/week-02.html",
-    "title": "Week 2: dplyr",
+    "title": "Week 2: dplyr and The Census",
     "section": "",
     "text": "#: Headings"
   },
   {
     "objectID": "weekly-notes/week-02.html#markdown-basics",
     "href": "weekly-notes/week-02.html#markdown-basics",
-    "title": "Week 2: dplyr",
+    "title": "Week 2: dplyr and The Census",
     "section": "",
     "text": "#: Headings"
   },
   {
     "objectID": "weekly-notes/week-02.html#key-concepts",
     "href": "weekly-notes/week-02.html#key-concepts",
-    "title": "Week 2: dplyr",
+    "title": "Week 2: dplyr and The Census",
     "section": "Key Concepts",
     "text": "Key Concepts\nThree places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
   },
   {
     "objectID": "weekly-notes/week-02.html#todays-workflow",
     "href": "weekly-notes/week-02.html#todays-workflow",
-    "title": "Week 2: dplyr",
+    "title": "Week 2: dplyr and The Census",
     "section": "Today’s workflow",
     "text": "Today’s workflow\n\n\nCopy github template from lecturer\nTemplate button → clone\nName github folder. Public\nOn personal github, click Code → open with github desktop → clone onto LOCAL computer\nOn file explorer, open Rproj folder → open on RStudio\nMake changes on like /qmd or /yml files. Then save as you go\nWhen you are all done, click Render, then it will save to LOCAL website.\nThen go to Github desktop → commit changes → Push button\nThen if you make the website page, it should show there\nGithub → settings → pages → website link should be there\nTO CREATE WEBSITE: deploy from a branch → main branch → /docs (which is a folder of html files that make a website) → save"
   },
   {
     "objectID": "weekly-notes/week-02.html#reflection",
     "href": "weekly-notes/week-02.html#reflection",
-    "title": "Week 2: dplyr",
+    "title": "Week 2: dplyr and The Census",
     "section": "Reflection",
     "text": "Reflection\n\nI have done spatial analysis in R before but only in RScript (and then manually exported into InDesign) without using github. I am excited about using Quarto to create a more seamless transition into Github.com and other digital media.\nOne thing I’m nervous about: Saving all the files in the right place!"
   },
   {
     "objectID": "weekly-notes/week-02.html#questions-i-still-have",
     "href": "weekly-notes/week-02.html#questions-i-still-have",
-    "title": "Week 2: dplyr",
+    "title": "Week 2: dplyr and The Census",
     "section": "Questions I Still Have",
     "text": "Questions I Still Have\n\nI am still not sure how to add more .qmd files to the repo in the correct folder.\nIf I press render, does that render all qmd files in the repo, or just the one I have open?"
   },
@@ -46,7 +46,7 @@
     "href": "weekly-notes/index.html",
     "title": "Weekly Notes",
     "section": "",
-    "text": "Notes from each week of MUSA 5080. New entries appear here automatically — add a .qmd file to this folder and render.\n\n\n\n\n\n\n\n\n\n\n\nWeek 2: dplyr\n\n\nFirst impressions, and getting the workflow running.\n\n\n\n\n\nSep 4, 2026\n\n\n\n\n\n\n\nWeek 1: Getting Set Up\n\n\nFirst impressions, and getting the workflow running.\n\n\n\n\n\nAug 28, 2026\n\n\n\n\n\nNo matching items"
+    "text": "Notes from each week of MUSA 5080. New entries appear here automatically — add a .qmd file to this folder and render.\n\n\n\n\n\n\n\n\n\n\n\nWeek 2: dplyr and The Census\n\n\nrrrrr\n\n\n\n\n\nSep 4, 2026\n\n\n\n\n\n\n\nWeek 1: Getting Set Up\n\n\nFirst impressions, and getting the workflow running.\n\n\n\n\n\nAug 28, 2026\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "data/readme.html",
@@ -130,14 +130,14 @@
     "href": "weekly-notes/week-01.html",
     "title": "Week 1: Getting Set Up",
     "section": "",
-    "text": "Three places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+    "text": "Quarto is a publishing system mixing writing and code directly into a nice final document. 1. Writing in Markdown 2. Embedded R Code (+ tables, plots, results) in chunks 3. Quarto can render the document as a webpage (without needing any HTML code!), PDF, slide deck, or Word file.\nThree places a file can live: 1. My computer - where I edit 2. GitHub.com - where it’s stored 3. My live site - what the world sees\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
   },
   {
     "objectID": "weekly-notes/week-01.html#key-concepts",
     "href": "weekly-notes/week-01.html#key-concepts",
     "title": "Week 1: Getting Set Up",
     "section": "",
-    "text": "Three places a file can live:\n\nMy computer - where I edit\nGitHub.com - where it’s stored\nMy live site - what the world sees\n\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+    "text": "Quarto is a publishing system mixing writing and code directly into a nice final document. 1. Writing in Markdown 2. Embedded R Code (+ tables, plots, results) in chunks 3. Quarto can render the document as a webpage (without needing any HTML code!), PDF, slide deck, or Word file.\nThree places a file can live: 1. My computer - where I edit 2. GitHub.com - where it’s stored 3. My live site - what the world sees\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
   },
   {
     "objectID": "weekly-notes/week-01.html#todays-workflow",
