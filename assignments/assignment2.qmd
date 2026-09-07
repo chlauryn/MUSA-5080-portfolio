@@ -25,7 +25,7 @@ library(dplyr)
 ## The question
 
 In this analysis, I look at median home value across counties in New Jersey, and
-ask which communities we measure most and least reliably. I just moved to the US, and was picked up by my uncle who lives in NJ - would love to know more about the beautiful houses there and how property prices compare!
+ask which communities we measure most and least reliably. I just moved to the US, and was picked up by my uncle who lives in NJ - I would love to know more about the beautiful houses there and how property prices compare!
 
 ---
 
