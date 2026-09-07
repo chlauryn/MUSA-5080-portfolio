@@ -23,10 +23,15 @@ website:
 
 format:
   html:
-    theme: flatly
+    theme:
+      light: minty
+      dark: solar
+    respect-user-color-scheme: true
     toc: true
     code-fold: false
     code-tools: true
+    title-block-banner: data/img/banner.jpg
+    css: styles.css
 
 execute:
   freeze: auto

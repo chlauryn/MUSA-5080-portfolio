@@ -1,0 +1,234 @@
+---
+title: "Assignment 2: Who Do We Know the Least About?"
+subtitle: "Measuring uncertainty in American Community Survey data"
+author: "Lauryn Chan"
+date: 2026-09-04
+format:
+  html:
+    toc: true
+    code-fold: false
+execute:
+  warning: false
+  message: false
+---
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(tidycensus)
+library(dplyr)
+```
+
+---
+
+## The question
+
+***In this analysis, I look at median home value across counties in New Jersey, and
+ask which communities we measure most and least reliably. I just moved to the US, and was picked up by my uncle who lives in NJ - would love to know more about the beautiful houses there and how property prices compare!***
+
+---
+
+## Choosing what to measure
+
+```{r}
+# can be changed and the rest of the code will follow!
+
+my_state <- "NJ"        # two-letter abbreviation, in quotes
+my_variable <- "B25077_001"     # the variable code, in quotes
+```
+
+## Pulling the data
+
+```{r}
+county_data <- get_acs(
+  geography = "county",
+  variables = my_variable,
+  state = my_state,
+  year = 2023,
+  survey = "acs5",
+  output = "wide"
+)
+```
+
+Let's look at what came back.
+
+```{r}
+dim(county_data)
+head(county_data)
+```
+
+
+***The numbers of rows (21) matches the number of counties in New Jersey.***
+
+---
+
+## How big is the margin of error?
+
+A margin of error of 3,000 means something very different for an estimate of 20,000
+than for an estimate of 200,000. To compare across places, we need it as a
+percentage.
+
+```{r}
+# Add column with MoE
+county_data <- county_data |> 
+  mutate(moe_pct = B25077_001M / B25077_001E * 100)
+
+# Arrange rows according to descending MoE
+county_data |> 
+  arrange(desc(moe_pct)) |> 
+  head(10)
+```
+
+***Salem County has the largest margin of error relative to its estimate, of 2.98%.***
+
+---
+
+## Optimising categories of margin of error
+
+To comput categories for margins of error, Jenks breaks are used to minimise variance within each of the 3 categories of confidence.
+
+```{r}
+library(classInt)
+
+jenks <- classInt::classIntervals(
+  county_data$moe_pct,
+  n = 3,
+  style = "jenks"
+)
+
+jenks$brks
+
+```
+
+## Sorting counties into reliability categories
+
+```{r}
+
+county_data <- county_data %>%
+  mutate(reliability = case_when(
+    moe_pct <= jenks$brks[2] ~ "High confidence",
+    moe_pct <= jenks$brks[3] ~ "Moderate confidence",
+    TRUE                    ~ "Low confidence"
+  ))
+
+# To remove, during experimentation
+# county_data$reliability <- NULL
+
+count(county_data, reliability)
+```
+
+
+***12 counties have high confidence of less than 1.37% margin of error. There are 5 counties with moderate confidence, and 4 with low confidence.***
+
+---
+
+## Is the margin of error bigger in small places?
+
+To answer this we need population and our variable side by side, in the same row.
+That means a wide pull.
+
+```{r}
+county_wide <- get_acs(
+  geography = "county",
+  variables = c(myvar = my_variable,
+                pop   = "B01003_001"),
+  state = my_state,
+  year = 2023,
+  survey = "acs5",
+  output = "wide"
+)
+
+head(county_wide)
+```
+
+
+```{r}
+county_wide <- county_wide %>%
+  mutate(moe_pct = myvarM / myvarE * 100) %>%
+  mutate(reliability = case_when(
+    moe_pct <= jenks$brks[2]  ~ "High confidence",
+    moe_pct <= jenks$brks[3] ~ "Moderate confidence",
+    TRUE         ~ "Low confidence"
+  ))
+```
+
+Now we compare the average population of counties in each reliability category.
+
+```{r}
+county_wide %>%
+  group_by(reliability) %>%
+  summarize(
+    n_counties = n(),
+    avg_population = mean(popE)
+  ) |> 
+  arrange(avg_population)
+```
+
+There doesn't seem to be a trend between confidence and population size. Maybe the categories of confidence are too arbitrary.
+
+It would be better to plot, using the actual numerical values of margins of error!
+
+#### Scatterplot of margins of error against population size
+
+```{r}
+# Generate scatterplot
+ggplot(
+  data = county_wide,
+  mapping = aes(x = popE, y = moe_pct)
+) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+```
+
+We see a downwards trends based on the best-fit line.
+
+```{r}
+# Computing Pearson's correlation coefficient
+cor(county_wide$popE, county_wide$moe_pct, use = "complete.obs")
+```
+
+**The Pearson's correlation coefficient indicates that there is a moderately strong negative correlation between population and margin of error (-0.6136624), indicating that as population size increases, the margin of error for house values decreases. This corresponds to how a larger sample size increases reliability as it reduces random error.**
+
+---
+
+## What this means for policy
+
+```{r}
+# Final table
+final_data <- county_data |> 
+  inner_join(county_wide, by=c("moe_pct","NAME","GEOID","reliability")) |> 
+  select(-myvarM,-popM) |> 
+  arrange(moe_pct)
+```
+
+
+::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+  head(final_data)
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+  tail(final_data)
+```
+
+:::
+
+:::
+
+The county we can most safely predict house values of is Middlesex County, with a median house value of $440,000. They have the lowest margin of error of 0.81%, thanks to its relatively high population of 860,000.
+
+We have the lowest confidence regarding median home values in Salem County, with the lowest population of 65,000 which likely contributes to its high margin of error of 2.98%. 
+
+That's because the 5-year ACS only samples approximately 5% of households over 5 years in total, rather than a complete count of all housing units. A smaller county would yield a smaller sample size, increasing random error for house value estimates. The use of the median value, however, helps to counter the effect of random error by ignoring extremes.
+
+**What could go wrong?:** 
+The margin of error introduces false positives about a place for policy analysis. If a county has a high estimated median house value, but also high margin of error, the state might incorrectly conclude that housing is more expensive in that area and allocate less housing assistance (and vice versa). This means resources are not allocated optimally to those in need. This is particularly disadvantageous for those who live in smaller counties with high margins of error whose needs are not represented in the census well.
