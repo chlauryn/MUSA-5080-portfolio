@@ -414,13 +414,13 @@ background-size: cover;
 </section>
 <section id="the-question" class="level2">
 <h2 class="anchored" data-anchor-id="the-question">The question</h2>
-<p><strong><em>In this analysis, I look at median home value across counties in New Jersey, and ask which communities we measure most and least reliably. I just moved to the US, and was picked up by my uncle who lives in NJ - would love to know more about the beautiful houses there and how property prices compare!</em></strong></p>
+<p>In this analysis, I look at median home value across counties in New Jersey, and ask which communities we measure most and least reliably. I just moved to the US, and was picked up by my uncle who lives in NJ - would love to know more about the beautiful houses there and how property prices compare!</p>
 <hr>
 </section>
 <section id="choosing-what-to-measure" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-what-to-measure">Choosing what to measure</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># can be changed and the rest of the code will follow!</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Can be changed and the rest of the code will follow!</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>my_state <span class="ot">&lt;-</span> <span class="st">"NJ"</span>        <span class="co"># two-letter abbreviation, in quotes</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>my_variable <span class="ot">&lt;-</span> <span class="st">"B25077_001"</span>     <span class="co"># the variable code, in quotes</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -666,7 +666,8 @@ background-size: cover;
 <p>The county we can most safely predict house values of is Middlesex County, with a median house value of $440,000. They have the lowest margin of error of 0.81%, thanks to its relatively high population of 860,000.</p>
 <p>We have the lowest confidence regarding median home values in Salem County, with the lowest population of 65,000 which likely contributes to its high margin of error of 2.98%.</p>
 <p>That’s because the 5-year ACS only samples approximately 5% of households over 5 years in total, rather than a complete count of all housing units. A smaller county would yield a smaller sample size, increasing random error for house value estimates. The use of the median value, however, helps to counter the effect of random error by ignoring extremes.</p>
-<p><strong>What could go wrong?:</strong> The margin of error introduces false positives about a place for policy analysis. If a county has a high estimated median house value, but also high margin of error, the state might incorrectly conclude that housing is more expensive in that area and allocate less housing assistance (and vice versa). This means resources are not allocated optimally to those in need. This is particularly disadvantageous for those who live in smaller counties with high margins of error whose needs are not represented in the census well.</p>
+<p><strong>What could go wrong?</strong></p>
+<p>The margin of error introduces false positives about a place for policy analysis. If a county has a high estimated median house value, but also high margin of error, the state might incorrectly conclude that housing is more expensive in that area and allocate less housing assistance (and vice versa). This means resources are not allocated optimally to those in need. This is particularly disadvantageous for those who live in smaller counties with high margins of error whose needs are not represented in the census well.</p>
 
 
 <!-- -->
@@ -1164,15 +1165,15 @@ background-size: cover;
 <span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a><span class="fu">## The question</span></span>
 <span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>***In this analysis, I look at median home value across counties in New Jersey, and</span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>ask which communities we measure most and least reliably. I just moved to the US, and was picked up by my uncle who lives in NJ - would love to know more about the beautiful houses there and how property prices compare!***</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>In this analysis, I look at median home value across counties in New Jersey, and</span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>ask which communities we measure most and least reliably. I just moved to the US, and was picked up by my uncle who lives in NJ - would love to know more about the beautiful houses there and how property prices compare!</span>
 <span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>---</span>
 <span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a><span class="fu">## Choosing what to measure</span></span>
 <span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a><span class="co"># can be changed and the rest of the code will follow!</span></span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Can be changed and the rest of the code will follow!</span></span>
 <span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>my_state <span class="ot">&lt;-</span> <span class="st">"NJ"</span>        <span class="co"># two-letter abbreviation, in quotes</span></span>
 <span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>my_variable <span class="ot">&lt;-</span> <span class="st">"B25077_001"</span>     <span class="co"># the variable code, in quotes</span></span>
@@ -1369,8 +1370,9 @@ background-size: cover;
 <span id="cb27-259"><a href="#cb27-259" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-260"><a href="#cb27-260" aria-hidden="true" tabindex="-1"></a>That's because the 5-year ACS only samples approximately 5% of households over 5 years in total, rather than a complete count of all housing units. A smaller county would yield a smaller sample size, increasing random error for house value estimates. The use of the median value, however, helps to counter the effect of random error by ignoring extremes.</span>
 <span id="cb27-261"><a href="#cb27-261" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-262"><a href="#cb27-262" aria-hidden="true" tabindex="-1"></a>**What could go wrong?:** </span>
-<span id="cb27-263"><a href="#cb27-263" aria-hidden="true" tabindex="-1"></a>The margin of error introduces false positives about a place for policy analysis. If a county has a high estimated median house value, but also high margin of error, the state might incorrectly conclude that housing is more expensive in that area and allocate less housing assistance (and vice versa). This means resources are not allocated optimally to those in need. This is particularly disadvantageous for those who live in smaller counties with high margins of error whose needs are not represented in the census well.</span>
+<span id="cb27-262"><a href="#cb27-262" aria-hidden="true" tabindex="-1"></a>**What could go wrong?** </span>
+<span id="cb27-263"><a href="#cb27-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-264"><a href="#cb27-264" aria-hidden="true" tabindex="-1"></a>The margin of error introduces false positives about a place for policy analysis. If a county has a high estimated median house value, but also high margin of error, the state might incorrectly conclude that housing is more expensive in that area and allocate less housing assistance (and vice versa). This means resources are not allocated optimally to those in need. This is particularly disadvantageous for those who live in smaller counties with high margins of error whose needs are not represented in the census well.</span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
