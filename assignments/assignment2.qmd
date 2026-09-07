@@ -230,6 +230,6 @@ We have the lowest confidence regarding median home values in Salem County, with
 
 That's because the 5-year ACS only samples approximately 5% of households over 5 years in total, rather than a complete count of all housing units. A smaller county would yield a smaller sample size, increasing random error for house value estimates. The use of the median value, however, helps to counter the effect of random error by ignoring extremes.
 
-**What could go wrong?** 
+**What could go wrong?**
 
 The margin of error introduces false positives about a place for policy analysis. If a county has a high estimated median house value, but also high margin of error, the state might incorrectly conclude that housing is more expensive in that area and allocate less housing assistance (and vice versa). This means resources are not allocated optimally to those in need. This is particularly disadvantageous for those who live in smaller counties with high margins of error whose needs are not represented in the census well.
