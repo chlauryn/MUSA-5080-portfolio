@@ -41,7 +41,7 @@ date: 2026-09-04
   * Next 3 digits: county
   * Next 6 digits: tract
   * +1 extra number
-
+4. To look at codes: _vars <- load_variables(2023, "acs5")_
 
 
 

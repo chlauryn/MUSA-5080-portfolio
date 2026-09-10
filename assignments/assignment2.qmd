@@ -105,7 +105,7 @@ jenks$brks
 
 ```{r}
 
-county_data <- county_data %>%
+county_data <- county_data |> 
   mutate(reliability = case_when(
     moe_pct <= jenks$brks[2] ~ "High confidence",
     moe_pct <= jenks$brks[3] ~ "Moderate confidence",
@@ -144,7 +144,7 @@ head(county_wide)
 
 
 ```{r}
-county_wide <- county_wide %>%
+county_wide <- county_wide |> 
   mutate(moe_pct = myvarM / myvarE * 100) %>%
   mutate(reliability = case_when(
     moe_pct <= jenks$brks[2]  ~ "High confidence",
@@ -156,8 +156,8 @@ county_wide <- county_wide %>%
 Now we compare the average population of counties in each reliability category.
 
 ```{r}
-county_wide %>%
-  group_by(reliability) %>%
+county_wide |> 
+  group_by(reliability) |> 
   summarize(
     n_counties = n(),
     avg_population = mean(popE)

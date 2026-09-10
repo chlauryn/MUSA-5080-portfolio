@@ -512,7 +512,7 @@ background-size: cover;
 <section id="sorting-counties-into-reliability-categories" class="level2">
 <h2 class="anchored" data-anchor-id="sorting-counties-into-reliability-categories">Sorting counties into reliability categories</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>county_data <span class="ot">&lt;-</span> county_data <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>county_data <span class="ot">&lt;-</span> county_data <span class="sc">|&gt;</span> </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">reliability =</span> <span class="fu">case_when</span>(</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">2</span>] <span class="sc">~</span> <span class="st">"High confidence"</span>,</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">3</span>] <span class="sc">~</span> <span class="st">"Moderate confidence"</span>,</span>
@@ -563,7 +563,7 @@ background-size: cover;
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>county_wide <span class="ot">&lt;-</span> county_wide <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>county_wide <span class="ot">&lt;-</span> county_wide <span class="sc">|&gt;</span> </span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">moe_pct =</span> myvarM <span class="sc">/</span> myvarE <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">reliability =</span> <span class="fu">case_when</span>(</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">2</span>]  <span class="sc">~</span> <span class="st">"High confidence"</span>,</span>
@@ -573,8 +573,8 @@ background-size: cover;
 </div>
 <p>Now we compare the average population of counties in each reliability category.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>county_wide <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(reliability) <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>county_wide <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(reliability) <span class="sc">|&gt;</span> </span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_counties =</span> <span class="fu">n</span>(),</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_population =</span> <span class="fu">mean</span>(popE)</span>
@@ -1245,7 +1245,7 @@ background-size: cover;
 <span id="cb27-116"><a href="#cb27-116" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sorting counties into reliability categories</span></span>
 <span id="cb27-117"><a href="#cb27-117" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-120"><a href="#cb27-120" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb27-121"><a href="#cb27-121" aria-hidden="true" tabindex="-1"></a>county_data <span class="ot">&lt;-</span> county_data <span class="sc">%&gt;%</span></span>
+<span id="cb27-121"><a href="#cb27-121" aria-hidden="true" tabindex="-1"></a>county_data <span class="ot">&lt;-</span> county_data <span class="sc">|&gt;</span> </span>
 <span id="cb27-122"><a href="#cb27-122" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">reliability =</span> <span class="fu">case_when</span>(</span>
 <span id="cb27-123"><a href="#cb27-123" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">2</span>] <span class="sc">~</span> <span class="st">"High confidence"</span>,</span>
 <span id="cb27-124"><a href="#cb27-124" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">3</span>] <span class="sc">~</span> <span class="st">"Moderate confidence"</span>,</span>
@@ -1284,7 +1284,7 @@ background-size: cover;
 <span id="cb27-159"><a href="#cb27-159" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-160"><a href="#cb27-160" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-163"><a href="#cb27-163" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb27-164"><a href="#cb27-164" aria-hidden="true" tabindex="-1"></a>county_wide <span class="ot">&lt;-</span> county_wide <span class="sc">%&gt;%</span></span>
+<span id="cb27-164"><a href="#cb27-164" aria-hidden="true" tabindex="-1"></a>county_wide <span class="ot">&lt;-</span> county_wide <span class="sc">|&gt;</span> </span>
 <span id="cb27-165"><a href="#cb27-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">moe_pct =</span> myvarM <span class="sc">/</span> myvarE <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb27-166"><a href="#cb27-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">reliability =</span> <span class="fu">case_when</span>(</span>
 <span id="cb27-167"><a href="#cb27-167" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">2</span>]  <span class="sc">~</span> <span class="st">"High confidence"</span>,</span>
@@ -1296,8 +1296,8 @@ background-size: cover;
 <span id="cb27-173"><a href="#cb27-173" aria-hidden="true" tabindex="-1"></a>Now we compare the average population of counties in each reliability category.</span>
 <span id="cb27-174"><a href="#cb27-174" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-177"><a href="#cb27-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb27-178"><a href="#cb27-178" aria-hidden="true" tabindex="-1"></a>county_wide <span class="sc">%&gt;%</span></span>
-<span id="cb27-179"><a href="#cb27-179" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(reliability) <span class="sc">%&gt;%</span></span>
+<span id="cb27-178"><a href="#cb27-178" aria-hidden="true" tabindex="-1"></a>county_wide <span class="sc">|&gt;</span> </span>
+<span id="cb27-179"><a href="#cb27-179" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(reliability) <span class="sc">|&gt;</span> </span>
 <span id="cb27-180"><a href="#cb27-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
 <span id="cb27-181"><a href="#cb27-181" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_counties =</span> <span class="fu">n</span>(),</span>
 <span id="cb27-182"><a href="#cb27-182" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_population =</span> <span class="fu">mean</span>(popE)</span>
