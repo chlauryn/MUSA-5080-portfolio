@@ -23,18 +23,18 @@ To verify their claims, I will be pulling the exact data that they used to recon
 * **Level**: Tract
   * To roughly equate tracts to neighbourhoods that were compared in the article
 
-**Assumptions**: Neighbourhood exactly. or what figures im gonna pull??
+**Assumptions**: Neighbourhood exactly. or what figures im gonna pull??. For simplistic reasons, I assume 1 tract will correspond to 1 neighbourhood referred to in the article. The corresponding tract number is found by inputting a random address in a residential area of the referenced neighbourhood into the [Census Geocoder](https://geocoding.geo.census.gov/geocoder/).
 
 
 ***
-
-## Pull data
 
 ```{r}
 #| include: false
 library(tidyverse)
 library(tidycensus)
 library(dplyr)
+library(gt)
+library(ggplot2)
 ```
 
 ```{r}
@@ -47,7 +47,7 @@ my_county <- "Philadelphia"
 get_poverty <- function(yr) {
   get_acs(
     geography = "tract",
-    variables = c(below_poverty = "B07012_002",
+    variables = c(below_poverty = "B07012_002", #this targets the people below the poverty line
                   total = "B07012_001"),
     state = my_state,
     county = my_county,
@@ -64,6 +64,8 @@ poverty_change <- bind_rows(
   get_poverty(2017)
 ) |> 
   mutate(NAME = str_remove(NAME, ", Philadelphia County, Pennsylvania"))
+
+poverty_change$period <- substr(poverty_change$period, 6, nchar(poverty_change$period))
 
 head(poverty_change)
 
@@ -100,69 +102,274 @@ poverty_master <- poverty_change |>
 
 ```
 
+BEFORE CALCULATING THE CHANGE IN YEARS 
 Compute the coefficient of variation and flag reliability using the Jurjevich et al. (2018) thresholds: CV < 12% reliable, 12–40% somewhat reliable, > 40% unreliable.
+
+
+For ACS data (which uses 90% confidence, z-score 1.645),
+
+* MOE = 1.645 * se
+* Therefore, CV = se/estimate * 100 = (moe/1.645)/estimate x100
+
+## Show coefficient of variation
 
 ```{r}
 
+poverty_variation <- poverty_master |> 
+  mutate(
+    cv_2010 = (moe_2010 / 1.645)/share_2010 *100,
+    cv_2017 = (moe_2017 / 1.645)/share_2017 *100,
+  )
 
+head(poverty_variation)
+
+
+reliability_table <- poverty_variation |> 
+  mutate(
+    dot_2010 = case_when(
+      cv_2010 < 12  ~ "🟢",
+      cv_2010 <= 40 ~ "🟡",
+      TRUE          ~ "🔴"
+    ),
+    dot_2017 = case_when(
+      cv_2017 < 12  ~ "🟢",
+      cv_2017 <= 40 ~ "🟡",
+      TRUE          ~ "🔴"
+    ),
+    flag_2010 = case_when(
+      cv_2010 < 12  ~ "Reliable",
+      cv_2010 <= 40 ~ "Somewhat reliable",
+      TRUE          ~ "Unreliable"
+    ),
+    flag_2017 = case_when(
+      cv_2017 < 12  ~ "Reliable",
+      cv_2017 <= 40 ~ "Somewhat reliable",
+      TRUE          ~ "Unreliable"
+    )
+  )
 
 ```
 
+## Reliability table
 
+:::{style="max-height: 400px; overflow-y: auto;"}
 
-Compute the change between the two periods and the margin of error of that change.
+```{r}
+reliability_table |> 
+  gt() |> 
+  fmt_percent(columns = c(share_2010, share_2017), decimals = 1) |> 
+  fmt_number(columns = c(moe_2010, moe_2017), decimals = 3) |> 
+  fmt_number(columns = c(cv_2010, cv_2017), decimals = 1) |> 
+  cols_label(
+    dot_2010 = "",
+    dot_2017 = "",
+    NAME     = "County",
+    share_2010 = "Poverty Share 2010",
+    share_2017 = "Poverty Share 2017",
+    moe_2010 = "MOE 2010",
+    moe_2017 = "MOE 2017",
+    cv_2010  = "CV 2010 (%)",
+    cv_2017  = "CV 2017 (%)",
+    flag_2010 = "Reliability 2010",
+    flag_2017 = "Reliability 2017"
+  ) |> 
+  cols_align(align = "center", columns = c(dot_2010, dot_2017)) |> 
+  tab_header(
+    title    = "Population below 100% of the poverty level",
+    subtitle = "Philadelphia tracts, ACS 5-year estimates"
+  ) |> 
+  tab_source_note(
+    "Reliability thresholds follow Jurjevich et al. (2018): CV < 12% reliable, 12–40% somewhat reliable, > 40% unreliable."
+  )
+```
+
+:::
+
+## Compute the change between the two periods and the margin of error of that change.
 Test whether the change is statistically distinguishable from zero at 90% confidence.
+
+```{r}
+poverty_tested <- poverty_master |> 
+  mutate(
+    change   = `share_2017` - `share_2010`,
+    se_2010  = `moe_2010` / 1.645,
+    se_2017  = `moe_2017` / 1.645,
+    se_diff  = sqrt(se_2010^2 + se_2017^2),
+    moe_diff = se_diff * 1.645,
+    z        = change / se_diff,
+    significant = abs(z) > 1.645    #using z-score for 90% confidence (2 tails)
+  )
+
+#Removing NA values
+tested_NA <- poverty_tested |> 
+  filter(change == "NaN")
+
+tested_NA
+
+```
+8 tracts displayed NA values for poverty shares for one/both surveys. 
+<Handle your missing values deliberately. Some tracts will produce NA. Find out why before you decide what to do about them, and say what you decided and why (often areas of no population like airports)>
+
+Inputting their GEOID into the census website to check their location ([link here](https://data.census.gov/map/1400000US42101005000%2C42101980300%2C42101980400%2C42101980500%2C42101980600%2C42101980700%2C42101980800%2C42101980900)), we can see that these tracts are located in non-residential areas. For example,
+
+* Tract 9804 covers the airport area
+* Tract 9806 covers the parking lot in Stadium
+* Tract 9808 covers Overbrook Park
+
+Therefore we will remove them from the dataset because it is irrelevant to poverty analysis of residents in Philadelphia.
+
+
+```{r}
+
+poverty_tested <- poverty_tested |> 
+    filter(change != "NaN")
+
+
+poverty_tested |> 
+  count(significant)
+
+```
+Only 63 out of 376 total tracts show a statistically detectable change across the 2 ACS surveys, which could means that the article's claims are not very valid.
+
+## Summary bar chart of changes in poverty rates per tract, with error bars
+Of the 15 most reliable!
+
+``` {r}
+poverty_tested |> 
+  arrange(desc(moe_diff)) |> 
+  slice_tail(n = 15) |>                                        # Of the 15 values with LOWEST moe
+  mutate(NAME = str_remove(NAME, "Census Tract "),
+         change = change * 100,
+         moe_diff = moe_diff * 100) |> 
+  ggplot(aes(x = reorder(NAME, change), y = change)) +
+  geom_col(fill = "forestgreen") +
+  geom_errorbar(aes(ymin = change - moe_diff, ymax = change + moe_diff), width = 0.3) +
+  coord_flip() +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Change in poverty rate (%) from 2006-2010 to 2013-2017",
+    subtitle = "ACS 2023 5-year estimates, for the top 15 most statistically reliable tracts (based on lowest MoE)",
+    x = "Census Tract number",
+    y = "Change in poverty rate (%)"
+  )
+
+```
+The margins of error (displayed in the error bars) is very large because it is the sum of the margins of error for both surveys.
+
+
+
+***
+
+# Part 3 — Adjudicate
+Hence we will compare the article's city-wide and neighbourhood-specific claims against the statistical significance of the change we identified.
+
+### 3a. Supported
+
+**Philadelphia has a 26% poverty rate from 2013-2017.**
+
+``` {r}
+
+# Calculate overall mean, moe, cv
+poverty_tested |> 
+  summarise(
+    number_of_tracts   = n(),
+    mean_share = mean(share_2017),
+    mean_moe   = (moe_sum(moe = moe_2017, estimate = share_2017) / n()) ,
+    mean_cv = (mean_moe / 1.645)/mean_share
+  )
+```
+The mean poverty rate across all tracts is indeed 26%, with a low coefficient of variation (cv) of 1.74%, indicating high reliability.
+
+> Fairhill in North Philadelphia registered a stunning 61 percent poverty rate.
+
+Using the Census Geocoder, the approximate tract of Fairhill is Census Tract 176.02.
+
+``` {r}
+
+# Calculate overall mean, moe, cv
+poverty_tested |> 
+  filter(NAME == "Census Tract 176.02") |> 
+  select(GEOID, NAME, share_2017, moe_2017) |> 
+  mutate(cv = (moe_2017 / 1.645)/share_2017)
+```
+Based on Jurjevich et al. (2018), the calculated poverty rate for Fairhill is accurate, but only somewhat reliable based on the coefficient of variation of 12%.
+
+### 3b. Not supported
+
+> The neighborhood of Eastwick in Southwest Philadelphia, near Philadelphia International Airport, showed the greatest poverty-rate increase of any community, rocketing from 12 percent during 2006-10 to 26 percent in the newest survey. That means that even after the recession ended, around a decade ago, conditions in Eastwick have gotten much worse than during the depth of the downturn.
+
+Eastwick: Census Tract 61
+
+``` {r}
+
+# Calculate overall mean, moe, cv
+poverty_tested |> 
+  filter(NAME == "Census Tract 61") |> 
+  select(GEOID, NAME, share_2017, share_2010, change, moe_diff, z, significant) |> 
+  mutate(cv = (moe_diff / 1.645)/change)
+
+```
+Figures quoted are comparable enough, increasing from 13% during 2006-10 to 25% in the newest survey. 
+However, the coefficient of variation is 76% which is very high, suggesting that there is no statistically detectable change from 2010 to 2017.
+
+
+> White poverty throughout much of the city skyrocketed, led by the Northeast neighborhood of Holmesburg, which went from a 2 percent poverty rate to 19 percent.
+
+white poverty???
+
+Holmesburg: Census Tract 326
+
+``` {r}
+
+# Calculate overall mean, moe, cv
+poverty_tested |> 
+  filter(NAME %in% c("Census Tract 326", "Census Tract 315.01")) |> 
+  select(GEOID, NAME, share_2017, share_2010, change, moe_diff, z, significant) |> 
+  mutate(cv = ((moe_diff / 1.645) / change) * 100)
+
+```
+
+As seen, equating Holmesburg to Tract 326 yielded very different values with a poverty rate of 17% in 2010, unlike the 2% rate that the article claimed. Exploration of values in adjacent tracts showed high variability within Holmesburg - for example, Tract 315.01 has a vastly different poverty rate of 7% in 2010.
+
+While it is true that poverty rates "skyrocketed" to 16% and 22% across the two tracts, the significance is false. The article's statement is not only statistically invalid, but also does not account for high variability within Holmesburg.
+
+Inconclusive. Feel like need to look at all tracts?
+
+
+### 3c. Cannot be determined
+
+
+
+
+``` {r}
+summary(poverty_master$share_2010)
+```
+
+
+Sort the article’s claims into three buckets:
+
+Supported — the data backs this up.
+Not supported — the data contradicts it, or the apparent effect is not distinguishable from noise.
+Cannot be determined — answering would require data or methodological detail the article does not provide and you cannot recover.
+Be specific!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #ARCHIVE
-
-poverty_tested <- poverty_master %>%
-  mutate(
-    change   = `estimate_2019-2023` - `estimate_2014-2018`,
-    se_1     = `moe_2014-2018` / 1.645,
-    se_2     = `moe_2019-2023` / 1.645,
-    se_diff  = sqrt(se_1^2 + se_2^2),
-    moe_diff = se_diff * 1.645,
-    z        = change / se_diff,
-    significant = abs(z) > 1.645    #ABSOLUTE() --> will give boolean of true/false
-  )
-
-poverty_tested %>%
-  count(significant)
-
-
-
-Report how many tracts show a statistically detectable change and how many do not.
-
-
-
-
-Handle your missing values deliberately. Some tracts will produce NA. Find out why before you decide what to do about them, and say what you decided and why (often areas of no population like airports)
-
-
-
-
-
-
-#what proportion of a county's population
-poverty_share <- get_acs(
-  geography = "county",
-  variables = c(below_poverty = "B07012_002",
-                total         = "B07012_001"),
-  state     = "NY",
-  year      = 2023,
-  survey    = "acs5",
-  output    = "wide"
-) %>%
-  mutate(
-    share     = below_povertyE / totalE,
-    share_moe = moe_prop(below_povertyE, totalE,
-                         below_povertyM, totalM)
-  )
-
-
-
-
 
 
 
