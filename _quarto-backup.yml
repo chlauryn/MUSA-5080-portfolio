@@ -1,0 +1,41 @@
+project:
+  type: website
+  output-dir: docs
+  execute-dir: project
+
+website:
+  title: "Lauryn Chan - MUSA 5080 Portfolio"
+  description: "Public Policy Analytics portfolio"
+
+  navbar:
+    title: "Portfolio"
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+      - href: weekly-notes/index.qmd
+        text: "Weekly Notes"
+      - href: assignments/index.qmd
+        text: "Assignments"
+    right:
+      - icon: github
+        href: "https://github.com/chlauryn/MUSA-5080-portfolio"
+
+format:
+  html:
+    theme:
+      light: minty
+      dark: solar
+    respect-user-color-scheme: true
+    toc: true
+    code-fold: false
+    code-tools: true
+    title-block-banner: data/img/banner.jpg
+    css: styles.css
+
+execute:
+  freeze: auto
+  echo: true
+  warning: false
+  message: false

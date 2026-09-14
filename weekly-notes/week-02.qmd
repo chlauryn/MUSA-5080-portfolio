@@ -5,7 +5,7 @@ date: 2026-09-04
 ---
 
 ## Troubleshooting
-1. On RStudio --> files --> click the .Rproj link to open it --> to be able to see the Build tab
+1. On RStudio --> files --> click the .Rproj link to open it --> to be able to see the Build tab. IF NOT CANNOT RENDER THE WEBSITE!
 
 ## Essential packages
 1. **dplyr** - data wrangling
@@ -29,7 +29,7 @@ date: 2026-09-04
 * Then formalised into an American Community Survey (ACS) --> samples 3% of households to generate a population estimate
   * 1-year ACS: Places > 65,000 (not very useful)
   * 5-year ACS: Per tract; average over 5 years of samples (e.g. 2011-2015 to generate 2016 census) --> Dead now :()
-  * Each Base Table has a table number (19013) + line number (001)  + margin of error - MoE (E) e.g. B19013_001E
+  * Each Base Table has a table number (19013) + line number (001 - means base row, total households)  + margin of error - MoE (E) e.g. B19013_001E
   * **Scales** - State --> County --> Tract (Neighborhood, 5000-8000 people; boundaries always change) --> Block groups (but high MoE) --> Block (Decennial only)
     * Longitudinal tracts have been made (NHGIS/LTDB)
   

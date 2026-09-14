@@ -564,7 +564,7 @@ background-size: cover;
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>county_wide <span class="ot">&lt;-</span> county_wide <span class="sc">|&gt;</span> </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">moe_pct =</span> myvarM <span class="sc">/</span> myvarE <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">moe_pct =</span> myvarM <span class="sc">/</span> myvarE <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">reliability =</span> <span class="fu">case_when</span>(</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">2</span>]  <span class="sc">~</span> <span class="st">"High confidence"</span>,</span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">3</span>] <span class="sc">~</span> <span class="st">"Moderate confidence"</span>,</span>
@@ -1285,7 +1285,7 @@ background-size: cover;
 <span id="cb27-160"><a href="#cb27-160" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-163"><a href="#cb27-163" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb27-164"><a href="#cb27-164" aria-hidden="true" tabindex="-1"></a>county_wide <span class="ot">&lt;-</span> county_wide <span class="sc">|&gt;</span> </span>
-<span id="cb27-165"><a href="#cb27-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">moe_pct =</span> myvarM <span class="sc">/</span> myvarE <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-165"><a href="#cb27-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">moe_pct =</span> myvarM <span class="sc">/</span> myvarE <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb27-166"><a href="#cb27-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">reliability =</span> <span class="fu">case_when</span>(</span>
 <span id="cb27-167"><a href="#cb27-167" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">2</span>]  <span class="sc">~</span> <span class="st">"High confidence"</span>,</span>
 <span id="cb27-168"><a href="#cb27-168" aria-hidden="true" tabindex="-1"></a>    moe_pct <span class="sc">&lt;=</span> jenks<span class="sc">$</span>brks[<span class="dv">3</span>] <span class="sc">~</span> <span class="st">"Moderate confidence"</span>,</span>

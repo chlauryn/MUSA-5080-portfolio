@@ -1,0 +1,282 @@
+[
+  {
+    "objectID": "weekly-notes/week-04.html",
+    "href": "weekly-notes/week-04.html",
+    "title": "week-04",
+    "section": "",
+    "text": "test\nhello world"
+  },
+  {
+    "objectID": "weekly-notes/week-02.html",
+    "href": "weekly-notes/week-02.html",
+    "title": "Week 2: dplyr and The Census",
+    "section": "",
+    "text": "On RStudio –&gt; files –&gt; click the .Rproj link to open it –&gt; to be able to see the Build tab. IF NOT CANNOT RENDER THE WEBSITE!"
+  },
+  {
+    "objectID": "weekly-notes/week-02.html#troubleshooting",
+    "href": "weekly-notes/week-02.html#troubleshooting",
+    "title": "Week 2: dplyr and The Census",
+    "section": "",
+    "text": "On RStudio –&gt; files –&gt; click the .Rproj link to open it –&gt; to be able to see the Build tab. IF NOT CANNOT RENDER THE WEBSITE!"
+  },
+  {
+    "objectID": "weekly-notes/week-02.html#essential-packages",
+    "href": "weekly-notes/week-02.html#essential-packages",
+    "title": "Week 2: dplyr and The Census",
+    "section": "Essential packages",
+    "text": "Essential packages\n\ndplyr - data wrangling\ntidycensus - to access US Census data"
+  },
+  {
+    "objectID": "weekly-notes/week-02.html#other-notes",
+    "href": "weekly-notes/week-02.html#other-notes",
+    "title": "Week 2: dplyr and The Census",
+    "section": "Other notes",
+    "text": "Other notes\n\nVocabulary\n\nTibble - a prettier version of a dataframe. Only works on tidyverse/tibble package\n\n\n\nMost important functions\n\nfilter() - for rows\nselect() - for columns\nmutate - call a function on existing columns and adds a column with results\narrange() - change order of rows (asc(), desc() by a specific column)\ngroup_by() - sum up rows based on a variable\nsummarize() - group_by() but with any summary statistic like mean\nshortcut for pipe - Ctrl + Shift + m"
+  },
+  {
+    "objectID": "weekly-notes/week-02.html#the-census",
+    "href": "weekly-notes/week-02.html#the-census",
+    "title": "Week 2: dplyr and The Census",
+    "section": "The Census",
+    "text": "The Census\n\nFirst started a decennial census - every 10 years, each person is asked 10 questions\nThen formalised into an American Community Survey (ACS) –&gt; samples 3% of households to generate a population estimate\n\n1-year ACS: Places &gt; 65,000 (not very useful)\n5-year ACS: Per tract; average over 5 years of samples (e.g. 2011-2015 to generate 2016 census) –&gt; Dead now :()\nEach Base Table has a table number (19013) + line number (001 - means base row, total households) + margin of error - MoE (E) e.g. B19013_001E\nScales - State –&gt; County –&gt; Tract (Neighborhood, 5000-8000 people; boundaries always change) –&gt; Block groups (but high MoE) –&gt; Block (Decennial only)\n\nLongitudinal tracts have been made (NHGIS/LTDB)\n\n\n\n\nCalling data from tidycensus\n\nlibrary(tidycensus)\nload_variables()\nGEOID - a unique identifier\n\n\nFirst 2 digits: state\nNext 3 digits: county\nNext 6 digits: tract\n+1 extra number\n\n\nTo look at codes: vars &lt;- load_variables(2023, “acs5”)\n\n\n#install.packages(\"tidycensus\")\nlibrary(tidycensus)\n\n# for example\ndata &lt;- get_acs(geography = \"county\", \n                variables = c(\"B19013_001\",\"B01003_001\"),\n                state = \"PA\",\n                year = 2023,\n                survey = \"acs5\",\n                #output = \"wide\"\n                )\n\nGetting data from the 2019-2023 5-year ACS\n\n#this will generate a table in long format, where each different variable is in a separate row under the same column name \"Variable\"\n# need to convert to wide format so that each variable is under a different column --&gt; SO, SPECIFY: output = \"wide\""
+  },
+  {
+    "objectID": "weekly-notes/index.html",
+    "href": "weekly-notes/index.html",
+    "title": "Weekly Notes",
+    "section": "",
+    "text": "Notes from each week of MUSA 5080. New entries appear here automatically — add a .qmd file to this folder and render.\n\n\n\n\n\n\n\n\n\nweek-04\n\n\n\n\n\n\n\n\n\n\n\n\n\nWeek 3: More about margins of error\n\n\n\n\n\n\n\n\nSep 11, 2026\n\n\n\n\n\n\n\nWeek 2: dplyr and The Census\n\n\nManipulating data from the ACS census\n\n\n\n\n\nSep 4, 2026\n\n\n\n\n\n\n\nWeek 1: Getting Set Up\n\n\nFirst impressions, and getting the workflow running.\n\n\n\n\n\nAug 28, 2026\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "data/readme.html",
+    "href": "data/readme.html",
+    "title": "",
+    "section": "",
+    "text": "Data files for MUSA 5080\nDownload assignment data from Canvas and save it here. Do not rename the files! Have a nice day :)"
+  },
+  {
+    "objectID": "assignments/index.html",
+    "href": "assignments/index.html",
+    "title": "Assignments",
+    "section": "",
+    "text": "Completed assignments for MUSA 5080. New assignments appear here automatically once you add the .qmd file to this folder and render.\n\n\n\n\n\n\n\n\n\nweek-04\n\n\n\n\n\n\n\n\n\n\n\n\n\nAssignment 2: Who Do We Know the Least About?\n\n\n\n\n\n\n\n\nSep 4, 2026\n\n\n\n\n\n\n\nWeek 1: This website\n\n\nAs seen!\n\n\n\n\n\nAug 28, 2026\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "assignments/assignment2.html",
+    "href": "assignments/assignment2.html",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "",
+    "text": "library(tidyverse)\nlibrary(tidycensus)\nlibrary(dplyr)"
+  },
+  {
+    "objectID": "assignments/assignment2.html#setup",
+    "href": "assignments/assignment2.html#setup",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "",
+    "text": "library(tidyverse)\nlibrary(tidycensus)\nlibrary(dplyr)"
+  },
+  {
+    "objectID": "assignments/assignment2.html#the-question",
+    "href": "assignments/assignment2.html#the-question",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "The question",
+    "text": "The question\nIn this analysis, I look at median home value across counties in New Jersey, and ask which communities we measure most and least reliably. I just moved to the US, and was picked up by my uncle who lives in NJ - I would love to know more about the beautiful houses there and how property prices compare!"
+  },
+  {
+    "objectID": "assignments/assignment2.html#choosing-what-to-measure",
+    "href": "assignments/assignment2.html#choosing-what-to-measure",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "Choosing what to measure",
+    "text": "Choosing what to measure\n\n# Can be changed and the rest of the code will follow!\n\nmy_state &lt;- \"NJ\"        # two-letter abbreviation, in quotes\nmy_variable &lt;- \"B25077_001\"     # the variable code, in quotes"
+  },
+  {
+    "objectID": "assignments/assignment2.html#pulling-the-data",
+    "href": "assignments/assignment2.html#pulling-the-data",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "Pulling the data",
+    "text": "Pulling the data\n\ncounty_data &lt;- get_acs(\n  geography = \"county\",\n  variables = my_variable,\n  state = my_state,\n  year = 2023,\n  survey = \"acs5\",\n  output = \"wide\"\n)\n\nLet’s look at what came back.\n\ndim(county_data)\n\n[1] 21  4\n\nhead(county_data)\n\n# A tibble: 6 × 4\n  GEOID NAME                          B25077_001E B25077_001M\n  &lt;chr&gt; &lt;chr&gt;                               &lt;dbl&gt;       &lt;dbl&gt;\n1 34001 Atlantic County, New Jersey        272700        4435\n2 34003 Bergen County, New Jersey          593200        4951\n3 34005 Burlington County, New Jersey      326700        3737\n4 34007 Camden County, New Jersey          262200        3072\n5 34009 Cape May County, New Jersey        395000        8798\n6 34011 Cumberland County, New Jersey      205600        4394\n\n\nThe numbers of rows (21) matches the number of counties in New Jersey."
+  },
+  {
+    "objectID": "assignments/assignment2.html#how-big-is-the-margin-of-error",
+    "href": "assignments/assignment2.html#how-big-is-the-margin-of-error",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "How big is the margin of error?",
+    "text": "How big is the margin of error?\nA margin of error of 3,000 means something very different for an estimate of 20,000 than for an estimate of 200,000. To compare across places, we need it as a percentage.\n\n# Add column with MoE\ncounty_data &lt;- county_data |&gt; \n  mutate(moe_pct = B25077_001M / B25077_001E * 100)\n\n# Arrange rows according to descending MoE\ncounty_data |&gt; \n  arrange(desc(moe_pct)) |&gt; \n  head(10)\n\n# A tibble: 10 × 5\n   GEOID NAME                          B25077_001E B25077_001M moe_pct\n   &lt;chr&gt; &lt;chr&gt;                               &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;\n 1 34033 Salem County, New Jersey           223000        6636    2.98\n 2 34017 Hudson County, New Jersey          508600       12318    2.42\n 3 34009 Cape May County, New Jersey        395000        8798    2.23\n 4 34011 Cumberland County, New Jersey      205600        4394    2.14\n 5 34021 Mercer County, New Jersey          351000        6540    1.86\n 6 34019 Hunterdon County, New Jersey       498800        9233    1.85\n 7 34041 Warren County, New Jersey          323100        5865    1.82\n 8 34001 Atlantic County, New Jersey        272700        4435    1.63\n 9 34035 Somerset County, New Jersey        523900        8197    1.56\n10 34037 Sussex County, New Jersey          342800        4709    1.37\n\n\nSalem County has the largest margin of error relative to its estimate, of 2.98%."
+  },
+  {
+    "objectID": "assignments/assignment2.html#optimising-categories-of-margin-of-error",
+    "href": "assignments/assignment2.html#optimising-categories-of-margin-of-error",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "Optimising categories of margin of error",
+    "text": "Optimising categories of margin of error\nTo comput categories for margins of error, Jenks breaks are used to minimise variance within each of the 3 categories of confidence.\n\nlibrary(classInt)\n\njenks &lt;- classInt::classIntervals(\n  county_data$moe_pct,\n  n = 3,\n  style = \"jenks\"\n)\n\njenks$brks\n\n[1] 0.8147052 1.3736873 1.8632479 2.9757848"
+  },
+  {
+    "objectID": "assignments/assignment2.html#sorting-counties-into-reliability-categories",
+    "href": "assignments/assignment2.html#sorting-counties-into-reliability-categories",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "Sorting counties into reliability categories",
+    "text": "Sorting counties into reliability categories\n\ncounty_data &lt;- county_data |&gt; \n  mutate(reliability = case_when(\n    moe_pct &lt;= jenks$brks[2] ~ \"High confidence\",\n    moe_pct &lt;= jenks$brks[3] ~ \"Moderate confidence\",\n    TRUE                    ~ \"Low confidence\"\n  ))\n\n# To remove, during experimentation\n# county_data$reliability &lt;- NULL\n\ncount(county_data, reliability)\n\n# A tibble: 3 × 2\n  reliability             n\n  &lt;chr&gt;               &lt;int&gt;\n1 High confidence        12\n2 Low confidence          4\n3 Moderate confidence     5\n\n\n12 counties have high confidence of less than 1.37% margin of error. There are 5 counties with moderate confidence, and 4 with low confidence."
+  },
+  {
+    "objectID": "assignments/assignment2.html#is-the-margin-of-error-bigger-in-small-places",
+    "href": "assignments/assignment2.html#is-the-margin-of-error-bigger-in-small-places",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "Is the margin of error bigger in small places?",
+    "text": "Is the margin of error bigger in small places?\nTo answer this we need population and our variable side by side, in the same row. That means a wide pull.\n\ncounty_wide &lt;- get_acs(\n  geography = \"county\",\n  variables = c(myvar = my_variable,\n                pop   = \"B01003_001\"),\n  state = my_state,\n  year = 2023,\n  survey = \"acs5\",\n  output = \"wide\"\n)\n\nhead(county_wide)\n\n# A tibble: 6 × 6\n  GEOID NAME                          myvarE myvarM   popE  popM\n  &lt;chr&gt; &lt;chr&gt;                          &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;\n1 34001 Atlantic County, New Jersey   272700   4435 274704    NA\n2 34003 Bergen County, New Jersey     593200   4951 954717    NA\n3 34005 Burlington County, New Jersey 326700   3737 464226    NA\n4 34007 Camden County, New Jersey     262200   3072 524042    NA\n5 34009 Cape May County, New Jersey   395000   8798  95236    NA\n6 34011 Cumberland County, New Jersey 205600   4394 152915    NA\n\n\n\ncounty_wide &lt;- county_wide |&gt; \n  mutate(moe_pct = myvarM / myvarE * 100) |&gt; \n  mutate(reliability = case_when(\n    moe_pct &lt;= jenks$brks[2]  ~ \"High confidence\",\n    moe_pct &lt;= jenks$brks[3] ~ \"Moderate confidence\",\n    TRUE         ~ \"Low confidence\"\n  ))\n\nNow we compare the average population of counties in each reliability category.\n\ncounty_wide |&gt; \n  group_by(reliability) |&gt; \n  summarize(\n    n_counties = n(),\n    avg_population = mean(popE)\n  ) |&gt; \n  arrange(avg_population)\n\n# A tibble: 3 × 3\n  reliability         n_counties avg_population\n  &lt;chr&gt;                    &lt;int&gt;          &lt;dbl&gt;\n1 Moderate confidence          5        248776.\n2 Low confidence               4        255900.\n3 High confidence             12        583294.\n\n\nThere doesn’t seem to be a trend between confidence and population size. Maybe the categories of confidence are too arbitrary.\nIt would be better to plot, using the actual numerical values of margins of error!\n\nScatterplot of margins of error against population size\n\n# Generate scatterplot\nggplot(\n  data = county_wide,\n  mapping = aes(x = popE, y = moe_pct)\n) +\n  geom_point() +\n  geom_smooth(method = \"lm\")\n\n\n\n\n\n\n\n\nWe see a downwards trends based on the best-fit line.\n\n# Computing Pearson's correlation coefficient\ncor(county_wide$popE, county_wide$moe_pct, use = \"complete.obs\")\n\n[1] -0.6136624\n\n\nThe Pearson’s correlation coefficient indicates that there is a moderately strong negative correlation between population and margin of error (-0.6136624), indicating that as population size increases, the margin of error for house values decreases. This corresponds to how a larger sample size increases reliability as it reduces random error."
+  },
+  {
+    "objectID": "assignments/assignment2.html#what-this-means-for-policy",
+    "href": "assignments/assignment2.html#what-this-means-for-policy",
+    "title": "Assignment 2: Who Do We Know the Least About?",
+    "section": "What this means for policy",
+    "text": "What this means for policy\n\n# Final table\nfinal_data &lt;- county_data |&gt; \n  inner_join(county_wide, by=c(\"moe_pct\",\"NAME\",\"GEOID\",\"reliability\")) |&gt; \n  select(-myvarM,-popM) |&gt; \n  arrange(moe_pct)\n\n\n\n\n  head(final_data)\n\n# A tibble: 6 × 8\n  GEOID NAME           B25077_001E B25077_001M moe_pct reliability myvarE   popE\n  &lt;chr&gt; &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;        &lt;dbl&gt;  &lt;dbl&gt;\n1 34023 Middlesex Cou…      439300        3579   0.815 High confi… 439300 861535\n2 34003 Bergen County…      593200        4951   0.835 High confi… 593200 954717\n3 34031 Passaic Count…      439400        4112   0.936 High confi… 439400 518289\n4 34039 Union County,…      488800        4723   0.966 High confi… 488800 572549\n5 34015 Gloucester Co…      283500        2851   1.01  High confi… 283500 304504\n6 34025 Monmouth Coun…      566500        5868   1.04  High confi… 566500 643615\n\n\n\n\n  tail(final_data)\n\n# A tibble: 6 × 8\n  GEOID NAME           B25077_001E B25077_001M moe_pct reliability myvarE   popE\n  &lt;chr&gt; &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;        &lt;dbl&gt;  &lt;dbl&gt;\n1 34019 Hunterdon Cou…      498800        9233    1.85 Moderate c… 498800 129448\n2 34021 Mercer County…      351000        6540    1.86 Moderate c… 351000 383286\n3 34011 Cumberland Co…      205600        4394    2.14 Low confid… 205600 152915\n4 34009 Cape May Coun…      395000        8798    2.23 Low confid… 395000  95236\n5 34017 Hudson County…      508600       12318    2.42 Low confid… 508600 710478\n6 34033 Salem County,…      223000        6636    2.98 Low confid… 223000  64973\n\n\n\n\nThe county we can most safely predict house values of is Middlesex County, with a median house value of $440,000. They have the lowest margin of error of 0.81%, thanks to its relatively high population of 860,000.\nWe have the lowest confidence regarding median home values in Salem County, with the lowest population of 65,000 which likely contributes to its high margin of error of 2.98%.\nThat’s because the 5-year ACS only samples approximately 5% of households over 5 years in total, rather than a complete count of all housing units. A smaller county would yield a smaller sample size, increasing random error for house value estimates. The use of the median value, however, helps to counter the effect of random error by ignoring extremes.\nWhat could go wrong?\nThe margin of error introduces false positives about a place for policy analysis. If a county has a high estimated median house value, but also high margin of error, the state might incorrectly conclude that housing is more expensive in that area and allocate less housing assistance (and vice versa). This means resources are not allocated optimally to those in need. This is particularly disadvantageous for those who live in smaller counties with high margins of error whose needs are not represented in the census well."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About Me!",
+    "section": "",
+    "text": "I just graduated from University College London in BSc Urban Studies, where I was first introduced to the world of spatial analysis. A year ago, I built my first map in QGIS, layering London’s air pollution over its social housing. What began as an experiment in technical flair turned into a moment of reckoning. The darkest reds traced the city’s most deprived neighborhoods, exposing inequality in color. That map taught me that data can clarify or conceal truth, reinforcing my beief that evidence-based approaches are foundational in making equitable and transparent policy decisions.\nAt Penn, I’m hoping to deepen my skills in geospatial analysis, machine learning, and data integration, while learning how to translate these insights into actionable strategies for policymakers and communities alike."
+  },
+  {
+    "objectID": "about.html#background",
+    "href": "about.html#background",
+    "title": "About Me!",
+    "section": "",
+    "text": "I just graduated from University College London in BSc Urban Studies, where I was first introduced to the world of spatial analysis. A year ago, I built my first map in QGIS, layering London’s air pollution over its social housing. What began as an experiment in technical flair turned into a moment of reckoning. The darkest reds traced the city’s most deprived neighborhoods, exposing inequality in color. That map taught me that data can clarify or conceal truth, reinforcing my beief that evidence-based approaches are foundational in making equitable and transparent policy decisions.\nAt Penn, I’m hoping to deepen my skills in geospatial analysis, machine learning, and data integration, while learning how to translate these insights into actionable strategies for policymakers and communities alike."
+  },
+  {
+    "objectID": "about.html#skills",
+    "href": "about.html#skills",
+    "title": "About Me!",
+    "section": "Skills",
+    "text": "Skills\n\nLanguages & Tools: R, Python, Quarto, Git\nSpatial: QGIS, ENVI, Google Earth Engine\nData: UK ONS Census, Singapore Census & LTA Datamall, US Census / ACS (soon)"
+  },
+  {
+    "objectID": "about.html#portfolio",
+    "href": "about.html#portfolio",
+    "title": "About Me!",
+    "section": "Portfolio",
+    "text": "Portfolio\nView my Portfolio 2026 here!"
+  },
+  {
+    "objectID": "about.html#get-in-touch",
+    "href": "about.html#get-in-touch",
+    "title": "About Me!",
+    "section": "Get in Touch",
+    "text": "Get in Touch\n\nEmail: chlauryn@upenn.edu\nGitHub: @chlauryn"
+  },
+  {
+    "objectID": "assignments/assignment3.html",
+    "href": "assignments/assignment3.html",
+    "title": "week-04",
+    "section": "",
+    "text": "hello world"
+  },
+  {
+    "objectID": "assignments/assignment3.html#pull-data",
+    "href": "assignments/assignment3.html#pull-data",
+    "title": "week-04",
+    "section": "Pull data",
+    "text": "Pull data\n\nmy_state &lt;- \"PA\"\nmy_county &lt;- \"Philadelphia\"\n\nget_poverty &lt;- function(yr) {\n  get_acs(\n    geography = \"tract\",\n    variables = c(below_poverty = \"B07012_002\",\n                  total = \"B07012_001\"),\n    state = my_state,\n    county = my_county,\n    year = yr,\n    survey = \"acs5\",\n    output = \"wide\"\n  ) |&gt; \n    mutate(period = paste0(yr - 4, \"_\", yr))\n}\n\n# Fetch ACS data\npoverty_change &lt;- bind_rows(\n  get_poverty(2010),\n  get_poverty(2017)\n) |&gt; \n  mutate(NAME = str_remove(NAME, \", Philadelphia County, Pennsylvania\"))\n\nhead(poverty_change)\n\n# A tibble: 6 × 7\n  GEOID       NAME            below_povertyE below_povertyM totalE totalM period\n  &lt;chr&gt;       &lt;chr&gt;                    &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; \n1 42101007102 Census Tract 7…           1653            566   4953    759 2006_…\n2 42101007200 Census Tract 72           1667            492   5164    723 2006_…\n3 42101007300 Census Tract 73            713            330   3045    401 2006_…\n4 42101007400 Census Tract 74           1568            517   4461    536 2006_…\n5 42101007700 Census Tract 77            628            253   1636    282 2006_…\n6 42101007800 Census Tract 78            832            271   3868    525 2006_…"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Home",
+    "section": "",
+    "text": "Welcome to my portfolio for MUSA 5080: Public Policy Analytics at the University of Pennsylvania.\nThis site documents my work in the Master of Urban Spatial Analytics program — weekly notes, course assignments, and a final project applying data analysis to urban policy questions.\n\n\n\n\n\n\n\nI’m a MUSA student at Penn. My background is in urban planning and design.\nI grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!\n\n\n\n\n\nSpatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata\n\n\n\n\n\n\n\nWeekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me"
+  },
+  {
+    "objectID": "index.html#about-me",
+    "href": "index.html#about-me",
+    "title": "Home",
+    "section": "",
+    "text": "I’m a MUSA student at Penn. My background is in urban planning and design.\nI grew up to love everything about cities thanks to my upbringing in Sunny Singapore, and I aspire to use data to help make places more seamless and sustainable!"
+  },
+  {
+    "objectID": "index.html#skills",
+    "href": "index.html#skills",
+    "title": "Home",
+    "section": "",
+    "text": "Spatial analysis, GIS, data visualisation, urban design, quantitative methods.\nTools: QGIS; R; Python; Adobe Suite; Google Earth Engine; Stata"
+  },
+  {
+    "objectID": "index.html#what-youll-find-here",
+    "href": "index.html#what-youll-find-here",
+    "title": "Home",
+    "section": "",
+    "text": "Weekly Notes — what I’m learning each week\nAssignments — analyses completed for the course\nAbout — more background and how to reach me"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html",
+    "href": "weekly-notes/week-01.html",
+    "title": "Week 1: Getting Set Up",
+    "section": "",
+    "text": "Quarto is a publishing system mixing writing and code directly into a nice final document. 1. Writing in Markdown 2. Embedded R Code (+ tables, plots, results) in chunks 3. Quarto can render the document as a webpage (without needing any HTML code!), PDF, slide deck, or Word file.\nThree places a file can live: 1. My computer - where I edit 2. GitHub.com - where it’s stored 3. My live site - what the world sees\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#key-concepts",
+    "href": "weekly-notes/week-01.html#key-concepts",
+    "title": "Week 1: Getting Set Up",
+    "section": "",
+    "text": "Quarto is a publishing system mixing writing and code directly into a nice final document. 1. Writing in Markdown 2. Embedded R Code (+ tables, plots, results) in chunks 3. Quarto can render the document as a webpage (without needing any HTML code!), PDF, slide deck, or Word file.\nThree places a file can live: 1. My computer - where I edit 2. GitHub.com - where it’s stored 3. My live site - what the world sees\nTypes of files and folders:\n\nFor me - index.qmd, about.qmd, weekly_notes.qmd, assignments.qmd\nFor the machine - quarto.yml (settings for whole website), _freeze (for quarto memory, after it gets rendered), .Rproj (for RStudio), .gitignore (for github), Renviron (for R, to keep secrets), docs/ (The Internet)\n\nThe loop: Edit → Save → Render → Commit → Push → wait → refresh"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#todays-workflow",
+    "href": "weekly-notes/week-01.html#todays-workflow",
+    "title": "Week 1: Getting Set Up",
+    "section": "Today’s workflow",
+    "text": "Today’s workflow\n\n\nCopy github template from lecturer\nTemplate button → clone\nName github folder. Public\nOn personal github, click Code → open with github desktop → clone onto LOCAL computer\nOn file explorer, open Rproj folder → open on RStudio\nMake changes on like /qmd or /yml files. Then save as you go\nWhen you are all done, click Render, then it will save to LOCAL website.\nThen go to Github desktop → commit changes → Push button\nThen if you make the website page, it should show there\nGithub → settings → pages → website link should be there\nTO CREATE WEBSITE: deploy from a branch → main branch → /docs (which is a folder of html files that make a website) → save"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#reflection",
+    "href": "weekly-notes/week-01.html#reflection",
+    "title": "Week 1: Getting Set Up",
+    "section": "Reflection",
+    "text": "Reflection\n\nI have done spatial analysis in R before but only in RScript (and then manually exported into InDesign) without using github. I am excited about using Quarto to create a more seamless transition into Github.com and other digital media.\nOne thing I’m nervous about: Saving all the files in the right place!"
+  },
+  {
+    "objectID": "weekly-notes/week-01.html#questions-i-still-have",
+    "href": "weekly-notes/week-01.html#questions-i-still-have",
+    "title": "Week 1: Getting Set Up",
+    "section": "Questions I Still Have",
+    "text": "Questions I Still Have\n\nI am still not sure how to add more .qmd files to the repo in the correct folder.\nIf I press render, does that render all qmd files in the repo, or just the one I have open?"
+  },
+  {
+    "objectID": "weekly-notes/week-03.html",
+    "href": "weekly-notes/week-03.html",
+    "title": "Week 3: More about margins of error",
+    "section": "",
+    "text": "Ansombe’s Quartet - revealing the need to visualise data to check scatterplot/trends\nA plot is a mapping from columns in your data to visual properties on your page"
+  },
+  {
+    "objectID": "weekly-notes/week-03.html#why-plot-data",
+    "href": "weekly-notes/week-03.html#why-plot-data",
+    "title": "Week 3: More about margins of error",
+    "section": "",
+    "text": "Ansombe’s Quartet - revealing the need to visualise data to check scatterplot/trends\nA plot is a mapping from columns in your data to visual properties on your page"
+  },
+  {
+    "objectID": "weekly-notes/week-03.html#how-data-is-plotted",
+    "href": "weekly-notes/week-03.html#how-data-is-plotted",
+    "title": "Week 3: More about margins of error",
+    "section": "How data is plotted",
+    "text": "How data is plotted\n\n\n\nMy data\nPage\n\n\n\n\nEstimate\nPosition on y-axis\n\n\nPopulation\nPosition on x-axis\n\n\nReliability\nColour\n\n\nMoE\nSize"
+  },
+  {
+    "objectID": "weekly-notes/week-03.html#so-how-to-measure-uncertainty-for-change-over-time",
+    "href": "weekly-notes/week-03.html#so-how-to-measure-uncertainty-for-change-over-time",
+    "title": "Week 3: More about margins of error",
+    "section": "So how to measure uncertainty for change over time?",
+    "text": "So how to measure uncertainty for change over time?\n\nFor ACS 5 it is difficult because there are a lot of overlapping intervals (e.g. 2019-2023, and 2018-2022 actually has many overlapping years)\n\nHence need to compare non-overlapping intervals like 2014-2018 and 2019-2023"
+  },
+  {
+    "objectID": "weekly-notes/week-03.html#making-functions-for-acs",
+    "href": "weekly-notes/week-03.html#making-functions-for-acs",
+    "title": "Week 3: More about margins of error",
+    "section": "Making functions for acs",
+    "text": "Making functions for acs\n\nget_poverty &lt;- function(yr) {\n  get_acs(\n    geography = \"county\",\n    variables = \"B07012_002\",\n    state     = \"NY\",\n    year      = yr,\n    survey    = \"acs5\"\n  ) %&gt;%\n    mutate(period = paste0(yr - 4, \"-\", yr)) # GIVES A COLUMN WITH STRING. E.G. \"2014-2018\", for get_poverty(2018)\n}\n\n\nwindows + . for emojis!!!!\nHomework 1. start on rscript, 2. then make a nice Quarto submission\nNotes for homework - #| code-fold: false - # this chunk stays visible - #| include: false - # to hide a chunk entirely - #| echo: false Hide the code, show the output - #| message: false Suppress package startup messages - #| warning: false Suppress warnings - #| fig-cap: “…” Add a figure caption Use message: false and warning: false on your data pull chunks. tidycensus is chatty, and its progress output does not belong in a finished report."
+  }
+]

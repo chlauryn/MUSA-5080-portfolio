@@ -145,7 +145,7 @@ head(county_wide)
 
 ```{r}
 county_wide <- county_wide |> 
-  mutate(moe_pct = myvarM / myvarE * 100) %>%
+  mutate(moe_pct = myvarM / myvarE * 100) |> 
   mutate(reliability = case_when(
     moe_pct <= jenks$brks[2]  ~ "High confidence",
     moe_pct <= jenks$brks[3] ~ "Moderate confidence",

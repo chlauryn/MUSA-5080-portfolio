@@ -1,0 +1,200 @@
+---
+title: "Verify the Claim: [your article's topic]"
+author: "Your Name"
+date: today
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+    embed-resources: true
+---
+
+# Part 1 — Reconstruct
+
+The WHYY article claims that poverty has risen from 2006-10 to 2013-17 based on the ACS five-year estimate. They have also quoted several neighbourhoods and calculated corresponding figures to prove their claim.
+
+To verify their claims, I will be pulling the exact data that they used to reconstruct (hopefully) similar figures:
+
+* **Years and survey**: ACS5 for 2010 and 2017
+  * The two periods do not overlap as there is a gap between 2010 (the end of the first survey) and 2013 (the start of the second survey). This will avoid error generated from comparing the same information twice and does not display the full change in characteristic between the 2 years.
+* **Variable code**: B07012_001E
+  * Based on the article that mentions "poverty rate" with margins of error
+* **Level**: Tract
+  * To roughly equate tracts to neighbourhoods that were compared in the article
+
+**Assumptions**: Neighbourhood exactly. or what figures im gonna pull??
+
+
+***
+
+## Pull data
+
+```{r}
+#| include: false
+library(tidyverse)
+library(tidycensus)
+library(dplyr)
+```
+
+```{r}
+#| message: false
+#| warning: false
+
+my_state <- "PA"
+my_county <- "Philadelphia"
+
+get_poverty <- function(yr) {
+  get_acs(
+    geography = "tract",
+    variables = c(below_poverty = "B07012_002",
+                  total = "B07012_001"),
+    state = my_state,
+    county = my_county,
+    year = yr,
+    survey = "acs5",
+    output = "wide"
+  ) |> 
+    mutate(period = paste0(yr - 4, "_", yr))
+}
+
+# Fetch ACS data
+poverty_change <- bind_rows(
+  get_poverty(2010),
+  get_poverty(2017)
+) |> 
+  mutate(NAME = str_remove(NAME, ", Philadelphia County, Pennsylvania"))
+
+head(poverty_change)
+
+```
+
+
+
+
+***
+# Part 2 — Test (code plus interpretation)
+For each tract:
+
+Compute the poverty rate (or whatever variable you are using if you found your own article) and its margin of error. Use moe_prop() — a rate is a proportion, and the MOE does not carry over from the count.
+
+
+```{r}
+
+# compute poverty share & moe before creating wide dataframe
+poverty_change <- poverty_change |> 
+  mutate(
+    share     = below_povertyE / totalE,
+    share_moe = moe_prop(below_povertyE, totalE,
+                         below_povertyM, totalM)
+  )
+
+# wrangling to wide format to MASTER DATAFRAME
+poverty_master <- poverty_change |>
+  select(GEOID, NAME, period, share, share_moe) |> 
+  rename(moe = share_moe) |> 
+  pivot_wider(
+    names_from = period,
+    values_from = c(share, moe)
+  )
+
+```
+
+Compute the coefficient of variation and flag reliability using the Jurjevich et al. (2018) thresholds: CV < 12% reliable, 12–40% somewhat reliable, > 40% unreliable.
+
+```{r}
+
+
+
+```
+
+
+
+Compute the change between the two periods and the margin of error of that change.
+Test whether the change is statistically distinguishable from zero at 90% confidence.
+
+
+#ARCHIVE
+
+poverty_tested <- poverty_master %>%
+  mutate(
+    change   = `estimate_2019-2023` - `estimate_2014-2018`,
+    se_1     = `moe_2014-2018` / 1.645,
+    se_2     = `moe_2019-2023` / 1.645,
+    se_diff  = sqrt(se_1^2 + se_2^2),
+    moe_diff = se_diff * 1.645,
+    z        = change / se_diff,
+    significant = abs(z) > 1.645    #ABSOLUTE() --> will give boolean of true/false
+  )
+
+poverty_tested %>%
+  count(significant)
+
+
+
+Report how many tracts show a statistically detectable change and how many do not.
+
+
+
+
+Handle your missing values deliberately. Some tracts will produce NA. Find out why before you decide what to do about them, and say what you decided and why (often areas of no population like airports)
+
+
+
+
+
+
+#what proportion of a county's population
+poverty_share <- get_acs(
+  geography = "county",
+  variables = c(below_poverty = "B07012_002",
+                total         = "B07012_001"),
+  state     = "NY",
+  year      = 2023,
+  survey    = "acs5",
+  output    = "wide"
+) %>%
+  mutate(
+    share     = below_povertyE / totalE,
+    share_moe = moe_prop(below_povertyE, totalE,
+                         below_povertyM, totalM)
+  )
+
+
+
+
+
+
+
+
+
+***
+archive
+
+
+
+# Reformat to wide to put the years side by side
+
+
+
+```{r}
+#| code-fold: false
+# this chunk stays visible
+```
+And to hide a chunk entirely — useful for library loading and data pulls that nobody needs to see:
+
+```{r}
+#| include: false
+library(tidycensus)
+library(tidyverse)
+library(gt)
+```
+
+Other chunk options worth knowing:
+
+Option	Effect
+#| echo: false	Hide the code, show the output
+#| message: false	Suppress package startup messages
+#| warning: false	Suppress warnings
+#| fig-cap: "..."	Add a figure caption
+Use message: false and warning: false on your data pull chunks. tidycensus is chatty, and its progress output does not belong in a finished report.
