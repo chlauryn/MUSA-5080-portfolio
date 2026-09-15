@@ -1,3 +1,29 @@
+/* 1. Target all general body document headers */
+h1, h2, h3, h4, h5, h6 {
+  color: green;
+}
+
+/* 2A. Target Title and Subtitle: White text WITH black outline */
+.quarto-title-block .title,
+.quarto-title-block .subtitle {
+  color: white !important;
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000,
+     0px  2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* 2B. Target Author, Date, and Metadata: Clean white text WITHOUT outline */
+.quarto-title-block .quarto-title-meta,
+.quarto-title-block .quarto-title-meta-heading,
+.quarto-title-block .quarto-title-meta-contents {
+  color: green !important;
+  text-shadow: none !important;
+}
+
+/* Existing banner height */
 .quarto-title-block .quarto-title-banner {
   min-height: 200px;
 }

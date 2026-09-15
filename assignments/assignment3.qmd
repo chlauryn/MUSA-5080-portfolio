@@ -1,7 +1,7 @@
 ---
-title: "Verify the Claim: [your article's topic]"
-author: "Your Name"
-date: today
+title: "Verify the Claim: Rise of poverty rates in Philadelphia Neighbourhoods"
+author: "Lauryn Chan"
+date: 2026-9-14
 format:
   html:
     toc: true
@@ -18,15 +18,17 @@ To verify their claims, I will be pulling the exact data that they used to recon
 
 * **Years and survey**: ACS5 for 2010 and 2017
   * The two periods do not overlap as there is a gap between 2010 (the end of the first survey) and 2013 (the start of the second survey). This will avoid error generated from comparing the same information twice and does not display the full change in characteristic between the 2 years.
-* **Variable code**: B07012_001E
-  * Based on the article that mentions "poverty rate" with margins of error
+* **Variable code**: B07012_001, B07012_002
+  * Based on the article that mentions "poverty rate" with margins of error, we need to compute poverty rate from the number of people below the poverty line (_002) divided by total population (_001).
 * **Level**: Tract
   * To roughly equate tracts to neighbourhoods that were compared in the article
 
-**Assumptions**: Neighbourhood exactly. or what figures im gonna pull??. For simplistic reasons, I assume 1 tract will correspond to 1 neighbourhood referred to in the article. The corresponding tract number is found by inputting a random address in a residential area of the referenced neighbourhood into the [Census Geocoder](https://geocoding.geo.census.gov/geocoder/).
+**Assumptions**: For simplistic reasons, I assume 1 tract will correspond to 1 neighbourhood referred to in the article. The corresponding tract number is found by inputting a random address in a residential area of the referenced neighbourhood into the [Census Geocoder](https://geocoding.geo.census.gov/geocoder/).
 
 
 ***
+
+### 1a. Pulling data
 
 ```{r}
 #| include: false
@@ -70,16 +72,14 @@ poverty_change$period <- substr(poverty_change$period, 6, nchar(poverty_change$p
 head(poverty_change)
 
 ```
-
+[_Above: Long format dataframe of ACS5 poverty data from 2006-2010 and 2013-2017_]{style="color: green;"}
 
 
 
 ***
-# Part 2 — Test (code plus interpretation)
-For each tract:
+# Part 2 — Test
 
-Compute the poverty rate (or whatever variable you are using if you found your own article) and its margin of error. Use moe_prop() — a rate is a proportion, and the MOE does not carry over from the count.
-
+### 2a. Computing the poverty rate
 
 ```{r}
 
@@ -100,18 +100,13 @@ poverty_master <- poverty_change |>
     values_from = c(share, moe)
   )
 
+head(poverty_master)
+
 ```
-
-BEFORE CALCULATING THE CHANGE IN YEARS 
-Compute the coefficient of variation and flag reliability using the Jurjevich et al. (2018) thresholds: CV < 12% reliable, 12–40% somewhat reliable, > 40% unreliable.
+[_Above: Wide format dataframe of change in ACS5 poverty rate from 2006-2010 and 2013-2017_]{style="color: green;"}
 
 
-For ACS data (which uses 90% confidence, z-score 1.645),
-
-* MOE = 1.645 * se
-* Therefore, CV = se/estimate * 100 = (moe/1.645)/estimate x100
-
-## Show coefficient of variation
+### 2b. Coefficient of variation
 
 ```{r}
 
@@ -122,6 +117,15 @@ poverty_variation <- poverty_master |>
   )
 
 head(poverty_variation)
+
+```
+[_Above: Wide format dataframe of change in ACS5 poverty rate from 2006-2010 and 2013-2017_]{style="color: green;"}
+
+### 2c. Reliability table
+
+:::{style="max-height: 400px; overflow-y: auto;"}
+
+```{r}
 
 
 reliability_table <- poverty_variation |> 
@@ -148,13 +152,8 @@ reliability_table <- poverty_variation |>
     )
   )
 
-```
 
-## Reliability table
-
-:::{style="max-height: 400px; overflow-y: auto;"}
-
-```{r}
+# Make it look nice using gt package
 reliability_table |> 
   gt() |> 
   fmt_percent(columns = c(share_2010, share_2017), decimals = 1) |> 
@@ -184,9 +183,12 @@ reliability_table |>
 ```
 
 :::
+[_Above: Reliability table of poverty share per tract, based on coefficient of variation_]{style="color: green;"}
 
-## Compute the change between the two periods and the margin of error of that change.
-Test whether the change is statistically distinguishable from zero at 90% confidence.
+
+### 2d. Computing poverty change, and associated margin of error
+
+I will test whether the change is statistically distinguishable from zero at 90% confidence.
 
 ```{r}
 poverty_tested <- poverty_master |> 
@@ -207,16 +209,17 @@ tested_NA <- poverty_tested |>
 tested_NA
 
 ```
-8 tracts displayed NA values for poverty shares for one/both surveys. 
-<Handle your missing values deliberately. Some tracts will produce NA. Find out why before you decide what to do about them, and say what you decided and why (often areas of no population like airports)>
+[_Above: Detected NA values from dataframe_]{style="color: green;"}
 
-Inputting their GEOID into the census website to check their location ([link here](https://data.census.gov/map/1400000US42101005000%2C42101980300%2C42101980400%2C42101980500%2C42101980600%2C42101980700%2C42101980800%2C42101980900)), we can see that these tracts are located in non-residential areas. For example,
+8 tracts displayed NA values for poverty shares for one/both surveys. To figure out what caused this, I input their GEOID into the [census website](https://data.census.gov/map/1400000US42101005000%2C42101980300%2C42101980400%2C42101980500%2C42101980600%2C42101980700%2C42101980800%2C42101980900) to check their location. We can see that these tracts are located in non-residential areas. For example,
 
 * Tract 9804 covers the airport area
 * Tract 9806 covers the parking lot in Stadium
-* Tract 9808 covers Overbrook Park
+* Tract 9808 covers Overbrooke Park
 
 Therefore we will remove them from the dataset because it is irrelevant to poverty analysis of residents in Philadelphia.
+
+**For the remaining rows, we determine the number of significant changes:**
 
 
 ```{r}
@@ -224,15 +227,15 @@ Therefore we will remove them from the dataset because it is irrelevant to pover
 poverty_tested <- poverty_tested |> 
     filter(change != "NaN")
 
-
 poverty_tested |> 
   count(significant)
 
 ```
+[_Above: Count of tracts with a statistically significant change in poverty rate from 2010 to 2017_]{style="color: green;"}
+
 Only 63 out of 376 total tracts show a statistically detectable change across the 2 ACS surveys, which could means that the article's claims are not very valid.
 
-## Summary bar chart of changes in poverty rates per tract, with error bars
-Of the 15 most reliable!
+### 2e. Visualising the change in poverty rates: A bar chart of the 15 most reliable tracts
 
 ``` {r}
 poverty_tested |> 
@@ -249,14 +252,16 @@ poverty_tested |>
   scale_y_continuous(labels = scales::comma) +
   labs(
     title = "Change in poverty rate (%) from 2006-2010 to 2013-2017",
-    subtitle = "ACS 2023 5-year estimates, for the top 15 most statistically reliable tracts (based on lowest MoE)",
+    subtitle = "ACS 2023 5-year estimates, for the top 15 most statistically reliable tracts
+    (based on lowest MoE)",
     x = "Census Tract number",
     y = "Change in poverty rate (%)"
   )
 
 ```
-The margins of error (displayed in the error bars) is very large because it is the sum of the margins of error for both surveys.
+[_Above: Bar chart (with error bars) of poverty change in top 15 most reliable tracts_]{style="color: green;"}
 
+The margins of error (displayed in the error bars) is very large because it is the sum of the margins of error for both surveys.
 
 
 ***
@@ -266,7 +271,11 @@ Hence we will compare the article's city-wide and neighbourhood-specific claims 
 
 ### 3a. Supported
 
-**Philadelphia has a 26% poverty rate from 2013-2017.**
+::: {.callout-note icon=false}
+## Claim 1
+"Philadelphia has a 26% poverty rate from 2013-2017."
+:::
+
 
 ``` {r}
 
@@ -281,7 +290,10 @@ poverty_tested |>
 ```
 The mean poverty rate across all tracts is indeed 26%, with a low coefficient of variation (cv) of 1.74%, indicating high reliability.
 
-> Fairhill in North Philadelphia registered a stunning 61 percent poverty rate.
+::: {.callout-note icon=false}
+## Claim 2
+"Fairhill in North Philadelphia registered a stunning 61 percent poverty rate."
+:::
 
 Using the Census Geocoder, the approximate tract of Fairhill is Census Tract 176.02.
 
@@ -297,7 +309,10 @@ Based on Jurjevich et al. (2018), the calculated poverty rate for Fairhill is ac
 
 ### 3b. Not supported
 
-> The neighborhood of Eastwick in Southwest Philadelphia, near Philadelphia International Airport, showed the greatest poverty-rate increase of any community, rocketing from 12 percent during 2006-10 to 26 percent in the newest survey. That means that even after the recession ended, around a decade ago, conditions in Eastwick have gotten much worse than during the depth of the downturn.
+::: {.callout-note icon=false}
+## Claim 3
+"The neighborhood of Eastwick in Southwest Philadelphia, near Philadelphia International Airport, showed the greatest poverty-rate increase of any community, rocketing from 12 percent during 2006-10 to 26 percent in the newest survey. That means that even after the recession ended, around a decade ago, conditions in Eastwick have gotten much worse than during the depth of the downturn."
+:::
 
 Eastwick: Census Tract 61
 
@@ -313,8 +328,10 @@ poverty_tested |>
 Figures quoted are comparable enough, increasing from 13% during 2006-10 to 25% in the newest survey. 
 However, the coefficient of variation is 76% which is very high, suggesting that there is no statistically detectable change from 2010 to 2017.
 
-
-> White poverty throughout much of the city skyrocketed, led by the Northeast neighborhood of Holmesburg, which went from a 2 percent poverty rate to 19 percent.
+::: {.callout-note icon=false}
+## Claim 4
+"White poverty throughout much of the city skyrocketed, led by the Northeast neighborhood of Holmesburg, which went from a 2 percent poverty rate to 19 percent."
+:::
 
 white poverty???
 
@@ -342,45 +359,12 @@ Inconclusive. Feel like need to look at all tracts?
 
 
 
-``` {r}
-summary(poverty_master$share_2010)
-```
-
-
-Sort the article’s claims into three buckets:
-
-Supported — the data backs this up.
-Not supported — the data contradicts it, or the apparent effect is not distinguishable from noise.
-Cannot be determined — answering would require data or methodological detail the article does not provide and you cannot recover.
-Be specific!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ARCHIVE
-
-
-
-
-
 ***
-archive
+# archive
 
 
 
-# Reformat to wide to put the years side by side
+ Reformat to wide to put the years side by side
 
 
 

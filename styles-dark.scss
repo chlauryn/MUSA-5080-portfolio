@@ -1,0 +1,83 @@
+/*-- scss:defaults --*/
+
+$body-bg: #212529;
+$body-color: #f8f9fa;
+
+$link-color: #78c2ad;
+
+$headings-color: #78c2ad;
+
+$navbar-bg: #212529;
+$navbar-fg: #f8f9fa;
+
+$code-bg: #2c3034;
+$code-color: #f8f9fa;
+
+
+/*-- scss:rules --*/
+
+/* Main page background */
+html,
+body {
+  background-color: #212529 !important;
+  color: #f8f9fa !important;
+}
+
+/* Main content */
+#quarto-content,
+.page-columns,
+main {
+  background-color: #212529 !important;
+  color: #f8f9fa !important;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  color: #78c2ad !important;
+}
+
+/* Links */
+a {
+  color: #78c2ad;
+}
+
+
+/* Title and subtitle */
+.quarto-title-block .title,
+.quarto-title-block .subtitle {
+  color: white !important;
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000,
+     0px  2px 4px rgba(0, 0, 0, 0.5);
+}
+
+
+/* Author, date and metadata */
+.quarto-title-block .quarto-title-meta,
+.quarto-title-block .quarto-title-meta-heading,
+.quarto-title-block .quarto-title-meta-contents {
+  color: #78c2ad !important;
+  text-shadow: none !important;
+}
+
+
+/* Banner height */
+.quarto-title-block .quarto-title-banner {
+  min-height: 200px;
+}
+
+
+/* Code blocks */
+pre,
+div.sourceCode {
+  background-color: #2c3034 !important;
+}
+
+
+/* Tables */
+table {
+  color: #f8f9fa;
+}

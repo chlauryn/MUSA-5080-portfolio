@@ -52,6 +52,7 @@ ggplot(dataframe,
 
 # Coefficient of variation (CV)
 Is the relative measure of sampling error
+
 * CV = (standard_error/estimate) * 100
 * SE, standard error is a standard number like 0.95 - which reflects the confidence level
 * MoE is based on the characteristics of the sample - e.g. size / variance of sample
