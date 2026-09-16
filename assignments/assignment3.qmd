@@ -14,7 +14,7 @@ format:
 
 The WHYY article claims that poverty has risen from 2006-10 to 2013-17 based on the ACS five-year estimate. They have also quoted several neighbourhoods and calculated corresponding figures to prove their claim.
 
-To verify their claims, I will be pulling the exact data that they used to reconstruct (hopefully) similar figures:
+To verify their claims, I will be pulling the exact data from tidycensus to reconstruct (hopefully) similar figures and verify their statistical validity:
 
 * **Years and survey**: ACS5 for 2010 and 2017
   * The two periods do not overlap as there is a gap between 2010 (the end of the first survey) and 2013 (the start of the second survey). This will avoid error generated from comparing the same information twice and does not display the full change in characteristic between the 2 years.
@@ -38,6 +38,16 @@ library(dplyr)
 library(gt)
 library(ggplot2)
 ```
+
+Pulling data from the census, we manipulate the data to get a wide dataframe with columns:
+
+1. **GEOID**
+2. **Name**: of census tract
+3. **below_povertyE**: the estimated number of people below the poverty line
+4. **below_povertyM**: the margin of error for below_povertyE
+5. **totalE**: total estimated population
+6. **totalM**: the margin of error for totalE
+7. **period**: time period (either 2010 or 2017)
 
 ```{r}
 #| message: false
@@ -69,7 +79,7 @@ poverty_change <- bind_rows(
 
 poverty_change$period <- substr(poverty_change$period, 6, nchar(poverty_change$period))
 
-head(poverty_change)
+glimpse(poverty_change)
 
 ```
 [_Above: Long format dataframe of ACS5 poverty data from 2006-2010 and 2013-2017_]{style="color: green;"}
@@ -80,6 +90,9 @@ head(poverty_change)
 # Part 2 — Test
 
 ### 2a. Computing the poverty rate
+
+* Poverty rate (*share_*) was calculated by dividing *below_povertyE* by *totalE*
+* Margin of error for poverty rate (*share_moe*) was calculated using the *moe_prop()* function in R
 
 ```{r}
 
@@ -100,13 +113,15 @@ poverty_master <- poverty_change |>
     values_from = c(share, moe)
   )
 
-head(poverty_master)
+glimpse(poverty_master)
 
 ```
 [_Above: Wide format dataframe of change in ACS5 poverty rate from 2006-2010 and 2013-2017_]{style="color: green;"}
 
 
 ### 2b. Coefficient of variation
+
+Coefficient of variation (*cv*) (in percentage) = (*moe*/1.645)/*share* * 100, where 1.645 is the z-score for a 90% two-tailed confidence level.
 
 ```{r}
 
@@ -116,12 +131,14 @@ poverty_variation <- poverty_master |>
     cv_2017 = (moe_2017 / 1.645)/share_2017 *100,
   )
 
-head(poverty_variation)
+glimpse(poverty_variation)
 
 ```
 [_Above: Wide format dataframe of change in ACS5 poverty rate from 2006-2010 and 2013-2017_]{style="color: green;"}
 
 ### 2c. Reliability table
+
+A reliability table was built to show the poverty share, moe, and cv for each census tract and the associated reliability of the data based on the coefficient of variation.
 
 :::{style="max-height: 400px; overflow-y: auto;"}
 
@@ -172,6 +189,14 @@ reliability_table |>
     flag_2010 = "Reliability 2010",
     flag_2017 = "Reliability 2017"
   ) |> 
+  cols_move(
+    columns = dot_2010,
+    after = flag_2010
+  ) |> 
+  cols_move(
+    columns = dot_2017,
+    after = flag_2017
+  ) |> 
   cols_align(align = "center", columns = c(dot_2010, dot_2017)) |> 
   tab_header(
     title    = "Population below 100% of the poverty level",
@@ -190,6 +215,10 @@ reliability_table |>
 
 I will test whether the change is statistically distinguishable from zero at 90% confidence.
 
+Reliability thresholds follow Jurjevich et al. (2018): CV < 12% reliable, 12–40% somewhat reliable, > 40% unreliable.
+
+**However, some troubleshooting is done first:**
+
 ```{r}
 poverty_tested <- poverty_master |> 
   mutate(
@@ -206,7 +235,7 @@ poverty_tested <- poverty_master |>
 tested_NA <- poverty_tested |> 
   filter(change == "NaN")
 
-tested_NA
+head(tested_NA)
 
 ```
 [_Above: Detected NA values from dataframe_]{style="color: green;"}
@@ -233,7 +262,7 @@ poverty_tested |>
 ```
 [_Above: Count of tracts with a statistically significant change in poverty rate from 2010 to 2017_]{style="color: green;"}
 
-Only 63 out of 376 total tracts show a statistically detectable change across the 2 ACS surveys, which could means that the article's claims are not very valid.
+Only 63 out of 376 total tracts show a statistically detectable change across the 2 ACS surveys, which could mean that the article's claims are not very valid.
 
 ### 2e. Visualising the change in poverty rates: A bar chart of the 15 most reliable tracts
 
@@ -261,13 +290,14 @@ poverty_tested |>
 ```
 [_Above: Bar chart (with error bars) of poverty change in top 15 most reliable tracts_]{style="color: green;"}
 
-The margins of error (displayed in the error bars) is very large because it is the sum of the margins of error for both surveys.
+The margins of error (displayed in the error bars) are very large because it is the sum of the margins of error for both surveys.
 
 
 ***
 
 # Part 3 — Adjudicate
-Hence we will compare the article's city-wide and neighbourhood-specific claims against the statistical significance of the change we identified.
+
+We will compute the article's city-wide and neighbourhood-specific claims to check its accuracy. We will also test its statistical significance of the result we computed.
 
 ### 3a. Supported
 
@@ -290,12 +320,36 @@ poverty_tested |>
 ```
 The mean poverty rate across all tracts is indeed 26%, with a low coefficient of variation (cv) of 1.74%, indicating high reliability.
 
+
+### 3b. Not supported
+
 ::: {.callout-note icon=false}
 ## Claim 2
+"The neighborhood of Eastwick in Southwest Philadelphia, near Philadelphia International Airport, showed the greatest poverty-rate increase of any community, rocketing from 12 percent during 2006-10 to 26 percent in the newest survey. That means that even after the recession ended, around a decade ago, conditions in Eastwick have gotten much worse than during the depth of the downturn."
+:::
+
+Using the Census Geocoder, the approximate tract of Eastwick is Census Tract 61
+
+``` {r}
+
+# Calculate overall mean, moe, cv
+poverty_tested |> 
+  filter(NAME == "Census Tract 61") |> 
+  select(GEOID, NAME, share_2017, share_2010, change, moe_diff, significant) |> 
+  mutate(cv = (moe_diff / 1.645)/change) 
+
+```
+Figures quoted are comparable enough, increasing from 13% during 2006-10 to 25% in the newest survey. 
+However, the coefficient of variation is 76% which is very high, suggesting that there is no statistically detectable change from 2010 to 2017.
+
+### 3c. Cannot be determined
+
+::: {.callout-note icon=false}
+## Claim 3
 "Fairhill in North Philadelphia registered a stunning 61 percent poverty rate."
 :::
 
-Using the Census Geocoder, the approximate tract of Fairhill is Census Tract 176.02.
+Fairhill: Census Tract 176.02.
 
 ``` {r}
 
@@ -305,35 +359,17 @@ poverty_tested |>
   select(GEOID, NAME, share_2017, moe_2017) |> 
   mutate(cv = (moe_2017 / 1.645)/share_2017)
 ```
-Based on Jurjevich et al. (2018), the calculated poverty rate for Fairhill is accurate, but only somewhat reliable based on the coefficient of variation of 12%.
 
-### 3b. Not supported
+Based on Jurjevich et al. (2018), the calculated poverty rate for Fairhill is accurate (61%), but only somewhat reliable based on the coefficient of variation of 12%. We will need to do more testing based on the surrounding tracts to create a more accurate profile of Fairhill.
 
-::: {.callout-note icon=false}
-## Claim 3
-"The neighborhood of Eastwick in Southwest Philadelphia, near Philadelphia International Airport, showed the greatest poverty-rate increase of any community, rocketing from 12 percent during 2006-10 to 26 percent in the newest survey. That means that even after the recession ended, around a decade ago, conditions in Eastwick have gotten much worse than during the depth of the downturn."
-:::
 
-Eastwick: Census Tract 61
 
-``` {r}
 
-# Calculate overall mean, moe, cv
-poverty_tested |> 
-  filter(NAME == "Census Tract 61") |> 
-  select(GEOID, NAME, share_2017, share_2010, change, moe_diff, z, significant) |> 
-  mutate(cv = (moe_diff / 1.645)/change)
-
-```
-Figures quoted are comparable enough, increasing from 13% during 2006-10 to 25% in the newest survey. 
-However, the coefficient of variation is 76% which is very high, suggesting that there is no statistically detectable change from 2010 to 2017.
 
 ::: {.callout-note icon=false}
 ## Claim 4
 "White poverty throughout much of the city skyrocketed, led by the Northeast neighborhood of Holmesburg, which went from a 2 percent poverty rate to 19 percent."
 :::
-
-white poverty???
 
 Holmesburg: Census Tract 326
 
@@ -343,49 +379,30 @@ Holmesburg: Census Tract 326
 poverty_tested |> 
   filter(NAME %in% c("Census Tract 326", "Census Tract 315.01")) |> 
   select(GEOID, NAME, share_2017, share_2010, change, moe_diff, z, significant) |> 
-  mutate(cv = ((moe_diff / 1.645) / change) * 100)
+  mutate(cv = ((moe_diff / 1.645) / change) * 100) |> 
+  select(NAME, share_2017, share_2010, change, significant, cv)
 
 ```
 
-As seen, equating Holmesburg to Tract 326 yielded very different values with a poverty rate of 17% in 2010, unlike the 2% rate that the article claimed. Exploration of values in adjacent tracts showed high variability within Holmesburg - for example, Tract 315.01 has a vastly different poverty rate of 7% in 2010.
+* As seen from the results, equating Holmesburg to Tract 326 yielded very different values with a poverty rate of 17% in 2010, unlike the 2% rate that the article claimed.
 
-While it is true that poverty rates "skyrocketed" to 16% and 22% across the two tracts, the significance is false. The article's statement is not only statistically invalid, but also does not account for high variability within Holmesburg.
+* Exploration of values in adjacent tracts showed high variability within Holmesburg - for example, the adjacent Tract 315.01 has a vastly different poverty rate of 7% in 2010.
 
-Inconclusive. Feel like need to look at all tracts?
+* While it is true that poverty rates "skyrocketed" to 17% and 22% across the two tracts, the significance is false. The article's statement is not only statistically invalid, but also does not account for high variability within Holmesburg. The surrounding census tracts should be investigated as well.
 
-
-### 3c. Cannot be determined
-
-
-
+* Furthermore, the term "white poverty" will need to be verified by investigating the ethnic makeup of Holmesburg, to truly verify whether it is a mainly white population that is undergoing skyrocketing poverty.
 
 ***
-# archive
+
+# Part 4 — Rewrite 
+Philadelphia’s poverty rate was ~26% in the 2013–2017 ACS, but neighbourhood-level comparisons are less straightforward than the original article suggests.
+
+* Fairhill’s estimated poverty rate was 61%, although further analysis of surrounding census tracts is needed to determine how well this figure represents the wider neighbourhood.
+
+* Eastwick’s poverty rate increased from about 13% in 2006–2010 to 25% in 2013–2017, but the large uncertainty around this change means that it is not statistically detectable.
+
+* Similarly, poverty increased substantially across the census tracts examined in Holmesburg, but the data does not establish that the change was statistically significant, nor that it was concentrated among white residents.
+
+These results show substantial poverty across Philadelphia, while also highlighting the importance of accounting for uncertainty and variation between census tracts when interpreting neighbourhood-level changes.
 
 
-
- Reformat to wide to put the years side by side
-
-
-
-```{r}
-#| code-fold: false
-# this chunk stays visible
-```
-And to hide a chunk entirely — useful for library loading and data pulls that nobody needs to see:
-
-```{r}
-#| include: false
-library(tidycensus)
-library(tidyverse)
-library(gt)
-```
-
-Other chunk options worth knowing:
-
-Option	Effect
-#| echo: false	Hide the code, show the output
-#| message: false	Suppress package startup messages
-#| warning: false	Suppress warnings
-#| fig-cap: "..."	Add a figure caption
-Use message: false and warning: false on your data pull chunks. tidycensus is chatty, and its progress output does not belong in a finished report.

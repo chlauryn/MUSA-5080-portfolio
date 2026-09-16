@@ -103,6 +103,29 @@ get_poverty <- function(yr) {
 ### windows + . for emojis!!!!
 
 
+### how to use code chunks
+```{r}
+#| code-fold: false
+# this chunk stays visible
+```
+And to hide a chunk entirely — useful for library loading and data pulls that nobody needs to see:
+
+```{r}
+#| include: false
+library(tidycensus)
+library(tidyverse)
+library(gt)
+```
+
+Other chunk options worth knowing:
+
+Option	Effect
+#| echo: false	Hide the code, show the output
+#| message: false	Suppress package startup messages
+#| warning: false	Suppress warnings
+#| fig-cap: "..."	Add a figure caption
+Use message: false and warning: false on your data pull chunks. tidycensus is chatty, and its progress output does not belong in a finished report.
+
 
 Homework
 1. start on rscript,
