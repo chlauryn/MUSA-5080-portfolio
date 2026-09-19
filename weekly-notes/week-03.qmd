@@ -1,6 +1,6 @@
 ---
 title: "Week 3: More about margins of error"
-description: "____"
+description: "and ggplot"
 date: 2026-09-11
 ---
 
@@ -29,7 +29,8 @@ ggplot(dataframe,
 
 
 ### Arguments inside aes()
-* **color** - assign a colour, or a column_name
+* **color** - !!!! IF IT'S INSIDE AES(), it maps a column called e.g. "Red" in the dataset
+  * need to assign color OUTSIDE of aes() if you want a fixed, constant colour
 * **ggplot(aes(x = reorder(NAME, estimate), y = estimate))** - reorder the NAME column by the length of estimate --> so it is in order according to size of the y (e.g. height of bar chart etc)
 
 
@@ -54,8 +55,11 @@ ggplot(dataframe,
 Is the relative measure of sampling error
 
 * CV = (standard_error/estimate) * 100
-* SE, standard error is a standard number like 0.95 - which reflects the confidence level
-* MoE is based on the characteristics of the sample - e.g. size / variance of sample
+* SE, standard_error = moe/1.645 (critical value)
+* MoE is based on the characteristics of the sample - e.g. size / variance of sample. **MOE in ACS is computed using a 90% confidence interval!!! that's why z-score used is 1.645**
+  * MoE of the e.g. difference between 2 values is NOT just added up because it is NOT uncertainty. It is a reflection of the range in which 90% of values fall (not all values),
+  * Calculate MoE of the difference by using SE equation
+* Coefficient of variation (*cv*) (in percentage) = (*moe*/1.645)/*share* * 100, where 1.645 is the z-score for a 90% two-tailed confidence level.
 
 Generally,
 

@@ -1,0 +1,49 @@
+---
+title: "Week 4: Joining tables"
+description: "____"
+date: 2026-09-11
+---
+
+## Dataframes
+
+1. Left-justified = characters (aka. string)
+2. Right-justified = integers
+
+## Joining
+
+1. left_join(A, B, by = GEOID"): Preserves all the rows from A. Only join rows from B that match entries in A
+  * Missing values become NA.
+2. inner_join: Only for matching rows
+3. full_join: All
+
+## Spatial data
+
+1. get_acs(..., geometry = TRUE) --> which will get a POLYGON geometry column according to boundary
+2. File types: .shp, .gdb (for ESRI) --> turn into sf (simple features) object in R
+3. CRS
+  * Two main families:
+  * (i) Geographic (UNITS: degrees, lat & lng): Examples: NAD27 (North America), NAD83, WGS84
+  * (ii) Projected (UNITS: ft/m): Preserve shape/area/distance/direction. For country-based analysis, conformal conic is preferred.
+    * Specific to state-level in the US. (PA has 2 state plane projections for top half and bottom half --> Philly is State Plane South, EPSG 2272) --> so for state-wide projection, might need to use UTM Zone (no negative degrees)
+    * State Plane Coordinate Systems use "US Survey Feet" or Metres
+
+
+### Code
+
+sf package --> sf objects using st_ for spatial objects only
+
+1. _st_set_crs(2272)_: To add the label 2272 (!!does not actually change hte value of anything)
+2. _st_transform(data, 2272)_: Change the crs (and the values to the new crs)
+3. _st_crs(data)_: To check crs of data --> and **check units**!! --> needed to do stuff like st_buffer
+3. _st_intersects(A, B)_: To find where A touches (either inside/touching) B --> returns True/False
+4. _st_touches(A,B)_: Evaluate if polygons touch each other. If A is inside B, does not count. The boundaries must be TOUCHING
+5. _st_within(A, B)_: Evaluate in B are inside A
+6. _st_filter()_: Count how many tracts fall inside a half mile from a point
+7. _st_intersection()_: Shapes change, cut out from the common area e.g. intersection buffer
+8. _st_union()_: Everything
+9. _st_join(stations, tracts)_: Join tables together based on geographic loc
+10. _st_distance()_: Returns a matrix with the distance between ALL stations (rows) and each tract (column)
+
+
+
+
