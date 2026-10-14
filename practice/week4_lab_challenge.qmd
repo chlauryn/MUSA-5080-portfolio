@@ -297,17 +297,17 @@ Instead, find the nearest station for each tract, then measure only that one dis
 
 ```{r}
 #| label: nearest
-nearest_idx <- st_nearest_feature(centroids, philly_tracts)
-
-philly_tracts <- philly_tracts %>%
-  mutate(
-    dist_ft = as.numeric(
-      st_distance(centroids, stations[nearest_idx, ], by_element = ___)
-    ),
-    dist_mi = dist_ft / ___
-  )
-
-summary(philly_tracts$dist_mi)
+# nearest_idx <- st_nearest_feature(centroids, philly_tracts)
+# 
+# philly_tracts <- philly_tracts %>%
+#   mutate(
+#     dist_ft = as.numeric(
+#       st_distance(centroids, stations[nearest_idx, ], by_element = ___)
+#     ),
+#     dist_mi = dist_ft / ___
+#   )
+# 
+# summary(philly_tracts$dist_mi)
 ```
 
 ------------------------------------------------------------------------
@@ -318,37 +318,37 @@ Build a **half-mile** zone around every station and merge the circles into one s
 
 ```{r}
 #| label: buffer
-station_zone <- stations %>%
-  st_buffer(dist = ___) %>%
-  st_union()
+# station_zone <- stations %>%
+#   st_buffer(dist = ___) %>%
+#   st_union()
 ```
 
 **Pick whole cookies:** which tracts don't touch the zone at all?
 
 ```{r}
 #| label: filter-disjoint
-outside_zone <- philly_tracts %>%
-  st_filter(station_zone, .predicate = ___)
-
-nrow(outside_zone)
+# outside_zone <- philly_tracts %>%
+#   st_filter(station_zone, .predicate = ___)
+# 
+# nrow(outside_zone)
 ```
 
 **Cut the dough:** what share of each tract's area falls inside the zone?
 
 ```{r}
 #| label: intersection
-philly_tracts <- philly_tracts %>%
-  mutate(tract_area = as.numeric(st_area(.)))
-
-covered <- philly_tracts %>%
-  st_intersection(station_zone) %>%
-  mutate(covered_area = as.numeric(st_area(.))) %>%
-  st_drop_geometry() %>%
-  select(GEOID, covered_area)
-
-philly_tracts <- philly_tracts %>%
-  left_join(covered, by = "GEOID") %>%
-  mutate(pct_covered = replace_na(covered_area / tract_area, 0) * 100)
+# philly_tracts <- philly_tracts %>%
+#   mutate(tract_area = as.numeric(st_area(.)))
+# 
+# covered <- philly_tracts %>%
+#   st_intersection(station_zone) %>%
+#   mutate(covered_area = as.numeric(st_area(.))) %>%
+#   st_drop_geometry() %>%
+#   select(GEOID, covered_area)
+# 
+# philly_tracts <- philly_tracts %>%
+#   left_join(covered, by = "GEOID") %>%
+#   mutate(pct_covered = replace_na(covered_area / tract_area, 0) * 100)
 ```
 
 **Notice:** that last step is the `left_join()` from Part 1b. It's a join by *what* (GEOID), used to bring a join-by-*where* result back into the table. The two kinds of join work together.
@@ -384,7 +384,7 @@ You now have three different definitions of "has access":
 ### Scoring (for bragging rights, not grades)
 
 |   | Points |
-|----|----|
+|------------------------------------|------------------------------------|
 | Count is correct *for your stated definitions* | 2 |
 | Map shows the right tracts and the stations, with a title that states your definitions | 2 |
 | Reliability breakdown included | 1 |

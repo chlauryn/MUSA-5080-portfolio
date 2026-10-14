@@ -1,0 +1,44 @@
+---
+title: "Week 5: Regression"
+format: html
+date: 2026-10-11
+---
+
+# Notes
+
+- first, need to fix rendering for notes 4 because it is not appearing!!
+
+- then, notes
+
+**RMSE:**
+
+- is the difference between the predicted values of the model and the actual observed values
+
+- it is in the same units as the predicted values (unlike RSE, which is unitless)
+
+**Regression for:**
+
++------------------------------------------------------------+-----------------------------------------+
+| PPA                                                        | Stats                                   |
++============================================================+=========================================+
+| For prediction for the future                              | To test robustness of the model         |
+|                                                            |                                         |
+| - that's why need the CV (Cross-validation)                | - for e.g. inference/hypothesis testing |
+|                                                            |                                         |
+| - to see how well the dataset performs against unseen data |                                         |
++------------------------------------------------------------+-----------------------------------------+
+
+------------------------------------------------------------------------
+
+### What is kfolds?
+
+All data gets the opportunity to be the testing dataset.
+
+e.g. if kfolds = 5 ,
+
+1.  data sets split in 5 folds (aka 5 segments)
+2.  each segments takes a turn being the test dataset (and the rest of the 4 segments become the training dataset) –\> each turn generates a unique equation + RMSE
+3.  the final RMSE is the averaged RMSE of all
+4.  the final equation is the equation for 100% of the dataset (no test segment)
+
+- it is done just to see how well the ML model does on untrained data!

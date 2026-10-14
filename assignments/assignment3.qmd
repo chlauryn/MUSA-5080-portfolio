@@ -16,17 +16,16 @@ The WHYY article claims that poverty has risen from 2006-10 to 2013-17 based on 
 
 To verify their claims, I will be pulling the exact data from tidycensus to reconstruct (hopefully) similar figures and verify their statistical validity:
 
-* **Years and survey**: ACS5 for 2010 and 2017
-  * The two periods do not overlap as there is a gap between 2010 (the end of the first survey) and 2013 (the start of the second survey). This will avoid error generated from comparing the same information twice and does not display the full change in characteristic between the 2 years.
-* **Variable code**: B07012_001, B07012_002
-  * Based on the article that mentions "poverty rate" with margins of error, we need to compute poverty rate from the number of people below the poverty line (_002) divided by total population (_001).
-* **Level**: Tract
-  * To roughly equate tracts to neighbourhoods that were compared in the article
+- **Years and survey**: ACS5 for 2010 and 2017
+  - The two periods do not overlap as there is a gap between 2010 (the end of the first survey) and 2013 (the start of the second survey). This will avoid error generated from comparing the same information twice and does not display the full change in characteristic between the 2 years.
+- **Variable code**: B07012_001, B07012_002
+  - Based on the article that mentions "poverty rate" with margins of error, we need to compute poverty rate from the number of people below the poverty line (\_002) divided by total population (\_001).
+- **Level**: Tract
+  - To roughly equate tracts to neighbourhoods that were compared in the article
 
 **Assumptions**: For simplistic reasons, I assume 1 tract will correspond to 1 neighbourhood referred to in the article. The corresponding tract number is found by inputting a random address in a residential area of the referenced neighbourhood into the [Census Geocoder](https://geocoding.geo.census.gov/geocoder/).
 
-
-***
+------------------------------------------------------------------------
 
 ### 1a. Pulling data
 
@@ -41,13 +40,13 @@ library(ggplot2)
 
 Pulling data from the census, we manipulate the data to get a wide dataframe with columns:
 
-1. **GEOID**
-2. **Name**: of census tract
-3. **below_povertyE**: the estimated number of people below the poverty line
-4. **below_povertyM**: the margin of error for below_povertyE
-5. **totalE**: total estimated population
-6. **totalM**: the margin of error for totalE
-7. **period**: time period (either 2010 or 2017)
+1.  **GEOID**
+2.  **Name**: of census tract
+3.  **below_povertyE**: the estimated number of people below the poverty line
+4.  **below_povertyM**: the margin of error for below_povertyE
+5.  **totalE**: total estimated population
+6.  **totalM**: the margin of error for totalE
+7.  **period**: time period (either 2010 or 2017)
 
 ```{r}
 #| message: false
@@ -82,17 +81,17 @@ poverty_change$period <- substr(poverty_change$period, 6, nchar(poverty_change$p
 glimpse(poverty_change)
 
 ```
-[_Above: Long format dataframe of ACS5 poverty data from 2006-2010 and 2013-2017_]{style="color: green;"}
 
+[*Above: Long format dataframe of ACS5 poverty data from 2006-2010 and 2013-2017*]{style="color: green;"}
 
+------------------------------------------------------------------------
 
-***
 # Part 2 — Test
 
 ### 2a. Computing the poverty rate
 
-* Poverty rate (*share_*) was calculated by dividing *below_povertyE* by *totalE*
-* Margin of error for poverty rate (*share_moe*) was calculated using the *moe_prop()* function in R
+- Poverty rate (*share\_*) was calculated by dividing *below_povertyE* by *totalE*
+- Margin of error for poverty rate (*share_moe*) was calculated using the *moe_prop()* function in R
 
 ```{r}
 
@@ -116,12 +115,12 @@ poverty_master <- poverty_change |>
 glimpse(poverty_master)
 
 ```
-[_Above: Wide format dataframe of change in ACS5 poverty rate from 2006-2010 and 2013-2017_]{style="color: green;"}
 
+[*Above: Wide format dataframe of change in ACS5 poverty rate from 2006-2010 and 2013-2017*]{style="color: green;"}
 
 ### 2b. Coefficient of variation
 
-Coefficient of variation (*cv*) (in percentage) = (*moe*/1.645)/*share* * 100, where 1.645 is the z-score for a 90% two-tailed confidence level.
+Coefficient of variation (*cv*) (in percentage) = (*moe*/1.645)/*share* \* 100, where 1.645 is the z-score for a 90% two-tailed confidence level.
 
 ```{r}
 
@@ -134,14 +133,14 @@ poverty_variation <- poverty_master |>
 glimpse(poverty_variation)
 
 ```
-[_Above: Wide format dataframe of change in ACS5 poverty rate from 2006-2010 and 2013-2017_]{style="color: green;"}
+
+[*Above: Wide format dataframe of change in ACS5 poverty rate from 2006-2010 and 2013-2017*]{style="color: green;"}
 
 ### 2c. Reliability table
 
 A reliability table was built to show the poverty share, moe, and cv for each census tract and the associated reliability of the data based on the coefficient of variation.
 
-:::{style="max-height: 400px; overflow-y: auto;"}
-
+::: {style="max-height: 400px; overflow-y: auto;"}
 ```{r}
 
 
@@ -206,16 +205,15 @@ reliability_table |>
     "Reliability thresholds follow Jurjevich et al. (2018): CV < 12% reliable, 12–40% somewhat reliable, > 40% unreliable."
   )
 ```
-
 :::
-[_Above: Reliability table of poverty share per tract, based on coefficient of variation_]{style="color: green;"}
 
+[*Above: Reliability table of poverty share per tract, based on coefficient of variation*]{style="color: green;"}
 
 ### 2d. Computing poverty change, and associated margin of error
 
 I will test whether the change is statistically distinguishable from zero at 90% confidence.
 
-Reliability thresholds follow Jurjevich et al. (2018): CV < 12% reliable, 12–40% somewhat reliable, > 40% unreliable.
+Reliability thresholds follow Jurjevich et al. (2018): CV \< 12% reliable, 12–40% somewhat reliable, \> 40% unreliable.
 
 **However, some troubleshooting is done first:**
 
@@ -238,18 +236,18 @@ tested_NA <- poverty_tested |>
 head(tested_NA)
 
 ```
-[_Above: Detected NA values from dataframe_]{style="color: green;"}
+
+[*Above: Detected NA values from dataframe*]{style="color: green;"}
 
 8 tracts displayed NA values for poverty shares for one/both surveys. To figure out what caused this, I input their GEOID into the [census website](https://data.census.gov/map/1400000US42101005000%2C42101980300%2C42101980400%2C42101980500%2C42101980600%2C42101980700%2C42101980800%2C42101980900) to check their location. We can see that these tracts are located in non-residential areas. For example,
 
-* Tract 9804 covers the airport area
-* Tract 9806 covers the parking lot in Stadium
-* Tract 9808 covers Overbrooke Park
+- Tract 9804 covers the airport area
+- Tract 9806 covers the parking lot in Stadium
+- Tract 9808 covers Overbrooke Park
 
 Therefore we will remove them from the dataset because it is irrelevant to poverty analysis of residents in Philadelphia.
 
 **For the remaining rows, we determine the number of significant changes:**
-
 
 ```{r}
 
@@ -260,13 +258,14 @@ poverty_tested |>
   count(significant)
 
 ```
-[_Above: Count of tracts with a statistically significant change in poverty rate from 2010 to 2017_]{style="color: green;"}
+
+[*Above: Count of tracts with a statistically significant change in poverty rate from 2010 to 2017*]{style="color: green;"}
 
 Only 63 out of 376 total tracts show a statistically detectable change across the 2 ACS surveys, which could mean that the article's claims are not very valid.
 
 ### 2e. Visualising the change in poverty rates: A bar chart of the 15 most reliable tracts
 
-``` {r}
+```{r}
 poverty_tested |> 
   arrange(desc(moe_diff)) |> 
   slice_tail(n = 15) |>                                        # Of the 15 values with LOWEST moe
@@ -288,12 +287,12 @@ poverty_tested |>
   )
 
 ```
-[_Above: Bar chart (with error bars) of poverty change in top 15 most reliable tracts_]{style="color: green;"}
+
+[*Above: Bar chart (with error bars) of poverty change in top 15 most reliable tracts*]{style="color: green;"}
 
 The margins of error (displayed in the error bars) are very large because it is the sum of the margins of error for both surveys.
 
-
-***
+------------------------------------------------------------------------
 
 # Part 3 — Adjudicate
 
@@ -301,13 +300,13 @@ We will compute the article's city-wide and neighbourhood-specific claims to che
 
 ### 3a. Supported
 
-::: {.callout-note icon=false}
+::: {.callout-note icon="false"}
 ## Claim 1
+
 "Philadelphia has a 26% poverty rate from 2013-2017."
 :::
 
-
-``` {r}
+```{r}
 
 # Calculate overall mean, moe, cv
 poverty_tested |> 
@@ -318,19 +317,20 @@ poverty_tested |>
     mean_cv = (mean_moe / 1.645)/mean_share
   )
 ```
-The mean poverty rate across all tracts is indeed 26%, with a low coefficient of variation (cv) of 1.74%, indicating high reliability.
 
+The mean poverty rate across all tracts is indeed 26%, with a low coefficient of variation (cv) of 1.74%, indicating high reliability.
 
 ### 3b. Not supported
 
-::: {.callout-note icon=false}
+::: {.callout-note icon="false"}
 ## Claim 2
+
 "The neighborhood of Eastwick in Southwest Philadelphia, near Philadelphia International Airport, showed the greatest poverty-rate increase of any community, rocketing from 12 percent during 2006-10 to 26 percent in the newest survey. That means that even after the recession ended, around a decade ago, conditions in Eastwick have gotten much worse than during the depth of the downturn."
 :::
 
 Using the Census Geocoder, the approximate tract of Eastwick is Census Tract 61
 
-``` {r}
+```{r}
 
 # Calculate overall mean, moe, cv
 poverty_tested |> 
@@ -339,19 +339,20 @@ poverty_tested |>
   mutate(cv = (moe_diff / 1.645)/change) 
 
 ```
-Figures quoted are comparable enough, increasing from 13% during 2006-10 to 25% in the newest survey. 
-However, the coefficient of variation is 76% which is very high, suggesting that there is no statistically detectable change from 2010 to 2017.
+
+Figures quoted are comparable enough, increasing from 13% during 2006-10 to 25% in the newest survey. However, the coefficient of variation is 76% which is very high, suggesting that there is no statistically detectable change from 2010 to 2017.
 
 ### 3c. Cannot be determined
 
-::: {.callout-note icon=false}
+::: {.callout-note icon="false"}
 ## Claim 3
+
 "Fairhill in North Philadelphia registered a stunning 61 percent poverty rate."
 :::
 
 Fairhill: Census Tract 176.02.
 
-``` {r}
+```{r}
 
 # Calculate overall mean, moe, cv
 poverty_tested |> 
@@ -362,18 +363,15 @@ poverty_tested |>
 
 Based on Jurjevich et al. (2018), the calculated poverty rate for Fairhill is accurate (61%), but only somewhat reliable based on the coefficient of variation of 12%. We will need to do more testing based on the surrounding tracts to create a more accurate profile of Fairhill.
 
-
-
-
-
-::: {.callout-note icon=false}
+::: {.callout-note icon="false"}
 ## Claim 4
+
 "White poverty throughout much of the city skyrocketed, led by the Northeast neighborhood of Holmesburg, which went from a 2 percent poverty rate to 19 percent."
 :::
 
 Holmesburg: Census Tract 326
 
-``` {r}
+```{r}
 
 # Calculate overall mean, moe, cv
 poverty_tested |> 
@@ -384,25 +382,24 @@ poverty_tested |>
 
 ```
 
-* As seen from the results, equating Holmesburg to Tract 326 yielded very different values with a poverty rate of 17% in 2010, unlike the 2% rate that the article claimed.
+- As seen from the results, equating Holmesburg to Tract 326 yielded very different values with a poverty rate of 17% in 2010, unlike the 2% rate that the article claimed.
 
-* Exploration of values in adjacent tracts showed high variability within Holmesburg - for example, the adjacent Tract 315.01 has a vastly different poverty rate of 7% in 2010.
+- Exploration of values in adjacent tracts showed high variability within Holmesburg - for example, the adjacent Tract 315.01 has a vastly different poverty rate of 7% in 2010.
 
-* While it is true that poverty rates "skyrocketed" to 17% and 22% across the two tracts, the significance is false. The article's statement is not only statistically invalid, but also does not account for high variability within Holmesburg. The surrounding census tracts should be investigated as well.
+- While it is true that poverty rates "skyrocketed" to 17% and 22% across the two tracts, the significance is false. The article's statement is not only statistically invalid, but also does not account for high variability within Holmesburg. The surrounding census tracts should be investigated as well.
 
-* Furthermore, the term "white poverty" will need to be verified by investigating the ethnic makeup of Holmesburg, to truly verify whether it is a mainly white population that is undergoing skyrocketing poverty.
+- Furthermore, the term "white poverty" will need to be verified by investigating the ethnic makeup of Holmesburg, to truly verify whether it is a mainly white population that is undergoing skyrocketing poverty.
 
-***
+------------------------------------------------------------------------
 
-# Part 4 — Rewrite 
-Philadelphia’s poverty rate was ~26% in the 2013–2017 ACS, but neighbourhood-level comparisons are less straightforward than the original article suggests.
+# Part 4 — Rewrite
 
-* Fairhill’s estimated poverty rate was 61%, although further analysis of surrounding census tracts is needed to determine how well this figure represents the wider neighbourhood.
+Philadelphia’s poverty rate was \~26% in the 2013–2017 ACS, but neighbourhood-level comparisons are less straightforward than the original article suggests.
 
-* Eastwick’s poverty rate increased from about 13% in 2006–2010 to 25% in 2013–2017, but the large uncertainty around this change means that it is not statistically detectable.
+- Fairhill’s estimated poverty rate was 61%, although further analysis of surrounding census tracts is needed to determine how well this figure represents the wider neighbourhood.
 
-* Similarly, poverty increased substantially across the census tracts examined in Holmesburg, but the data does not establish that the change was statistically significant, nor that it was concentrated among white residents.
+- Eastwick’s poverty rate increased from about 13% in 2006–2010 to 25% in 2013–2017, but the large uncertainty around this change means that it is not statistically detectable.
+
+- Similarly, poverty increased substantially across the census tracts examined in Holmesburg, but the data does not establish that the change was statistically significant, nor that it was concentrated among white residents.
 
 These results show substantial poverty across Philadelphia, while also highlighting the importance of accounting for uncertainty and variation between census tracts when interpreting neighbourhood-level changes.
-
-

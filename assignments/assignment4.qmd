@@ -1,0 +1,1174 @@
+---
+title: "Assignment: Building Features, Watching What Happens"
+subtitle: "MUSA 5080 · Integrates Weeks 1–5 · Due Friday, October 16"
+author: "Lauryn Chan"
+date: 2026-10-13
+format:
+  html:
+    toc: true
+    code-fold: show
+    code-tools: true
+execute:
+  warning: false
+  message: false
+freeze: false
+---
+
+## What this assignment is (and isn't)
+
+This is **not a competition.** There's no leaderboard and no target RMSE. The goal is to practice the full prediction workflow on a question you choose, and to **find out what actually helps.** Some features you're sure will help won't, and some you add on a whim will. Both are findings.
+
+You'll:
+
+1.  Choose a tract-level outcome for Philadelphia and check whether it's reliable enough to model (Weeks 2–3).
+2.  Fit a baseline model and cross-validate it (Week 5).
+3.  Pull data from Philadelphia's open data portal through its API and build spatial features: counts, densities, and distances (Week 4, plus one new tool).
+4.  Transform variables with logs, squared terms, and categories. **Watch the October 9 recorded lecture before Part 5.**
+5.  Keep a **model log** the whole way through, and compare where your first and final models go wrong.
+
+**Timing.** Parts 1–4 use only what we've covered through Week 5. You can finish them before the October 9 lecture. Part 5 is new material; the lecture explains it, and the instructions below give you the essentials.
+
+**Type the code yourself.** The worked examples show the pattern. Your job is to apply it to your outcome and your data choices.
+
+### Three rules that apply everywhere
+
+::: callout-important
+Rules:
+
+## 1. Don't drop rows
+
+Every model is cross-validated on the same tracts with the same folds, so the rows in your model log are comparable. If a new variable has missing values, fill them (for example, 0 for a count, or the median with a note) or choose a different variable. The `cv_rmse()` helper below will stop and tell you if you break this rule.
+
+## 2. Stay inside the time window
+
+Your outcome comes from the 2019–2023 ACS. Pull open data from **2023 or earlier** (2021–2023 is ideal). Using 2025 data to predict a 2023 outcome uses information from the future, which a real prediction model would never have.
+
+## 3. No leakage
+
+Don't use any variable that's built from your outcome or measures the same thing another way. Ask yourself: *would an agency trying to predict this outcome for a tract have this variable?* If the answer is "only because it's basically the outcome," leave it out.
+:::
+
+------------------------------------------------------------------------
+
+## Part 0: Setup
+
+```{r}
+#| label: setup
+library(tidyverse)
+library(tidycensus)
+library(sf)
+library(caret)
+
+Sys.getenv("CENSUS_API_KEY") != ""   # should print TRUE
+```
+
+### The cross-validation helper
+
+This function runs 10-fold cross-validation with the ***same seed*** every time, so every model in your log is tested on the same folds. **You don't need to change it.** Read it once so you know what it does.
+
+```{r}
+#| label: cv-helper
+ctrl <- trainControl(method = "cv", number = 10)
+
+cv_rmse <- function(formula, data) {
+  df <- if (inherits(data, "sf")) st_drop_geometry(data) else data
+  vars <- all.vars(formula)
+  bad <- vars[sapply(vars, function(v) any(is.na(df[[v]])))]
+  if (length(bad) > 0) {
+    stop("These variables have NAs: ", paste(bad, collapse = ", "),
+         ". Fill them or choose another variable (Rule 1: don't drop rows).")
+  }
+  set.seed(5080)
+  fit <- train(formula, data = df, method = "lm", trControl = ctrl)
+  fit$results$RMSE
+}
+```
+
+### The model log
+
+Every time you fit a new model, add a row. By the end, this table is the story of your assignment.
+
+```{r}
+#| label: log-start
+model_log <- tibble(
+  model   = character(),
+  added   = character(),
+  cv_rmse = numeric(),
+  notes   = character()
+)
+```
+
+------------------------------------------------------------------------
+
+## Part 1: Choose your outcome
+
+Pick a **tract-level ACS variable for Philadelphia** that matters for policy. Two outcomes are off limits: median gross rent (we did it in lab) and median home value (save it for A4).
+
+Some ideas if you're stuck:
+
++----------------------------------+--------------------------+-------------------------+
+| Outcome                          | Why an agency might care | ACS table               |
++==================================+==========================+=========================+
+| \% of households with no vehicle | Transit planning         | B08201 or B25044        |
++----------------------------------+--------------------------+-------------------------+
+| Mean travel time to work         | Access to jobs           | B08013_001 ÷ B08303_001 |
++----------------------------------+--------------------------+-------------------------+
+| \% of people below poverty       | Targeting services       | B17001                  |
++----------------------------------+--------------------------+-------------------------+
+| \% of housing units vacant       | Housing and blight       | B25002                  |
++----------------------------------+--------------------------+-------------------------+
+| \% of households overcrowded     | Housing conditions       | B25014                  |
++----------------------------------+--------------------------+-------------------------+
+
+Use `load_variables(2023, "acs5")` to browse and find exact variable codes.
+
+### 1A: Pull your outcome and your baseline predictors
+
+Choose **three to five ACS predictors** for your baseline model. They should be things that plausibly relate to your outcome, but **none of them may be built from your outcome** (Rule 3).
+
+- `total_travel_time = "B08013_001":` Aggregated travel time to work (min)
+
+- `workingpop = "B08303_001":` Working population above 16 and **not** working from home
+
+- `car = "B08301_002":` Number of working population taking the car to work
+
+- `income = "B19013_001":` median household income (in \$) in the past 12 months
+
+- `am7 to am830 = "B08302_0xx":` Number of working population that leave at that time to go to work
+
+*Predictors were speculated based on some preliminary research \[[1](https://www.philadelphiafed.org/-/media/frbp/assets/economy/articles/economic-insights/2023/q3/eiq323-not-all-rush-hours-are-the-same.pdf), [2](https://phl17.com/phl17-news/philadelphia-has-third-longest-commute-in-the-nation-as-travel-times-rise/)\]*
+
+```{r}
+#| output: false
+philly_tracts <- get_acs(
+  geography = "tract",
+  state = "PA",
+  county = "Philadelphia",
+  variables = c(
+    total_travel_time = "B08013_001",
+    # your outcome's numerator and denominator (or median), e.g.:
+    workingpop = "B08303_001", #WORKING POPULATION (NOT INCLUDING WFH)
+    # your baseline predictors, e.g.:
+    car = "B08301_002",
+    income = "B19013_001",
+    
+    # time of departure , combining later
+    am7 = "B08302_007",
+    am730 = "B08302_008",
+    am8 = "B08302_009",
+    am830 = "B08302_010",
+    
+    
+    # for burglary stuff
+    pop = "B01001_001"
+  ),
+  year = 2023,
+  output = "wide",
+  geometry = TRUE
+) %>%
+  st_transform(2272)
+```
+
+```{r}
+#| label: build-outcome
+philly_tracts <- philly_tracts %>%
+  mutate(
+    # build your outcome, e.g. a percentage:
+    y = total_travel_timeE / workingpopE,      #AKA AVG TRAVEL TIME
+    # and its reliability. For a percentage, use tidycensus::moe_prop();
+    # for a median or count, use the E and M columns directly.
+    
+    # use moe_ratio, not moe_prop because it is different units
+    y_moe = moe_ratio(total_travel_timeE, workingpopE, total_travel_timeM, workingpopM), 
+    y_cv  = ((y_moe / 1.645) / y * 100),
+    
+    
+    
+    # your predictors:
+    carE = carE / workingpopE * 100,        # % of car commuters
+    incomeE = incomeE,                      #avg income, no change
+    
+    #predictor: percentage of people commuting during peak hours
+    peakE = (am7E+am730E+am8E+am830E) / workingpopE * 100,
+    
+    # cosmetic
+    NAME = str_remove(NAME, "; Philadelphia County; Pennsylvania")
+  )
+
+
+#keep only impt rows
+philly_tracts <- philly_tracts %>%
+  select(c(GEOID, NAME, popE, workingpopE, y, y_moe, y_cv, carE, incomeE, peakE, geometry))
+```
+
+**Our variables are:**
+
+- `y` = avg travel time (minutes) per person
+
+- `carE` = PERCENTAGE of car users to commute
+
+- `incomeE` = MEDIAN household income in past 12 months
+
+- `peakE` = PERCENTAGE of commuters travelling during peak hour
+
+### 1B: Is it reliable enough to model?
+
+Before you commit, check three things.
+
+```{r}
+#| label: reliability
+# How many tracts have no value for your outcome?
+sum(is.na(philly_tracts$y))
+
+# How reliable is it?
+summary(philly_tracts$y_cv)
+
+philly_tracts %>%
+  mutate(reliability = case_when(
+    y_cv < 12  ~ "High",
+    y_cv <= 40 ~ "Moderate",
+    TRUE       ~ "Low"
+  )) %>%
+  st_drop_geometry() %>%
+  count(reliability)
+
+# What does the distribution look like?
+ggplot(philly_tracts, aes(x = y)) +
+  geom_histogram(bins = 30) +
+  theme_minimal()
+```
+
+If more than about a third of tracts have low reliability, consider a different outcome, or one built from larger counts. Write your reasoning either way.
+
+**Answer (2–3 sentences):** What is your outcome, why would an agency want to predict it, and how reliable is it?
+
+*Reliability is moderate, with majority (360 out of 380) displaying moderate reliability, and only 1 tract with high reliability. We will still proceed with the analysis.*
+
+*Travel time to work is an important indicator of job accessibility, which is needed for governments to assess where and what is best to invest in to help residents waste less time commuting. Travel time to work is an interesting measurement because it can be attributed to both external factors (e.g. congestion, access to public transport) and individual factors (e.g. job industry, car ownership). Modelling travel time to work will help agencies better understand (i) which areas of Philadelphia need to be helped more, and (ii) understand what the contributing factors to travel time are and how that can influence policy.*
+
+### 1C: Decide which tracts to model
+
+Filter once, here, and never again. Every later step uses `tracts`.
+
+```{r}
+#| output: false
+tracts <- philly_tracts %>%
+  filter(workingpopE > 0,
+         !is.na(y),
+         # add !is.na() for each baseline predictor like in the in-class lab
+         !is.na(carE),
+         !is.na(peakE),
+         !is.na(incomeE)
+         )
+
+nrow(philly_tracts)
+nrow(tracts)
+```
+
+**Answer:** How many tracts did you lose, and what kinds of places are they?
+
+*I lost 28 tracts.*
+
+```{r}
+# build an anti-join to see
+
+lost <- philly_tracts %>%
+  st_drop_geometry() %>%
+  anti_join(tracts, by = "GEOID")
+
+lost
+
+```
+
+*Your answer:*
+
+*By putting the GEOIDs of the lost tracts into the [census website](https://data.census.gov/map/1400000US42101005000,42101980300,42101980400,42101980500,42101980600,42101980700,42101980800,42101980900?layer=VT_2022_140_00_PY_D1) to check their location, we can see that the 28 places displaying NA values include:*
+
+- *Tract 9809.06 covers the airport area*
+
+- *Tract 285 covers a Main Street with likely a negligible residential population*
+
+- *Tract 301 seems to cover a residential area but for some reason is missing income data.*
+
+*I am not too sure about some (like 301), but 380 out of 408 observations are still valid so the analysis can continue.*
+
+------------------------------------------------------------------------
+
+## Part 2: Baseline model
+
+### 2A: Look first
+
+Plot your outcome against each predictor before modeling (the Week 3 habit).
+
+```{r}
+#| label: look
+
+predictors <- c("carE", "peakE", "incomeE")
+
+# MAKE FOR LOOP --> generate one scatterplot per predictor, e.g.:
+for (pred in predictors) {
+  p <- ggplot(tracts, aes(x = .data[[pred]], y = y)) + 
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE) +
+    theme_minimal() +
+    labs(x = pred) # Dynamically label the x-axis
+  
+  print(p)
+}
+```
+
+All 3 variables potentially show a linear relationship with y (travel time), so we can try to fit a multiple linear regression.
+
+### 2B: Fit and log
+
+```{r}
+#| label: m1
+f1 <- y ~ carE + peakE + incomeE
+
+m1 <- lm(f1, data = tracts)
+summary(m1)
+```
+
+```{r}
+model_log <- model_log %>%
+  add_row(model = "m1", added = "ACS baseline",
+          cv_rmse = cv_rmse(f1, tracts),
+          notes = "Baseline model misses by 5.25min")
+
+model_log
+
+#model_log <- model_log[-1, ]
+```
+
+Write the CV RMSE as a sentence, in your outcome's units:
+
+*On tracts it hasn't seen, the baseline model misses by about 5 minutes.*
+
+### 2C: Where is the baseline wrong?
+
+Save this map. You'll compare it to your final model's map in Part 6.
+
+```{r}
+#| label: resid-map-1
+tracts <- tracts %>% mutate(resid_m1 = residuals(m1))
+
+ggplot(tracts) +
+  geom_sf(aes(fill = resid_m1), color = NA) +
+  scale_fill_gradient2(low = "#2166ac", mid = "grey95", high = "#b2182b", midpoint = 0) +
+  theme_void() +
+  labs(title = "Baseline model: where it's wrong",
+       subtitle = "Red = actual higher than predicted",
+       fill = "Residual")
+```
+
+**Answer:** Where do the residuals cluster? What might those places have in common that your model doesn't know about? **Use this answer to choose your open data layers in Part 3.**
+
+*Not much of a spatial pattern that is observable, although generally Center City has more negative residuals. The further from Central, the more positive the residuals become.*
+
+*This indicates that at Center City, the actual observed travel time is less than what the model predicted. This is likely true because at Center City, residents are closer to places of employment which means their distance to work is shorter.*
+
+------------------------------------------------------------------------
+
+## Part 3: Getting data from Philadelphia's open data portal
+
+Many of the city's datasets on [OpenDataPhilly](https://opendataphilly.org) are served through a **Carto SQL API**. You send a SQL query in a URL, and it sends back data. Ask for `format=GeoJSON` and `st_read()` reads the result directly, just like the Indego feed in Week 4.
+
+The pattern:
+
+```         
+https://phl.carto.com/api/v2/sql?format=GeoJSON&q=SELECT ... FROM table_name WHERE ...
+```
+
+Three pieces of SQL are all you need:
+
+- `SELECT the_geom, column1, column2` chooses which columns come back. **Always include `the_geom`**, or you get no geometry.
+- `FROM table_name` chooses the dataset.
+- `WHERE ...` filters rows. **Filter in the query, [not in R]{.underline}.** Some tables have millions of rows, and pulling everything will be slow or fail.
+
+This helper builds the URL for you. Spaces and symbols in a URL need encoding, and `URLencode()` handles that.
+
+```{r}
+#| label: carto-helper
+carto_get <- function(sql) {
+  url <- paste0("https://phl.carto.com/api/v2/sql?format=GeoJSON&q=", URLencode(sql))
+  st_read(url, quiet = TRUE)
+}
+```
+
+### Finding a table name
+
+On a dataset's OpenDataPhilly page, look for the API link. The table name is the word after `FROM` in the example query. To see what values a column takes before you filter on it, ask for a count in CSV format:
+
+```{r}
+#| label: explore-values
+# What kinds of crime are in the incidents table in 2023?
+url <- paste0("https://phl.carto.com/api/v2/sql?format=csv&q=",
+              URLencode("SELECT text_general_code, COUNT(*) AS n
+                         FROM incidents_part1_part2
+                         WHERE dispatch_date >= '2023-01-01' AND dispatch_date < '2024-01-01'
+                         GROUP BY text_general_code ORDER BY n DESC"))
+read_csv(url)
+```
+
+### Worked example: residential burglaries in 2023
+
+```{r}
+#| label: worked-burglary
+burglary <- carto_get(
+  "SELECT the_geom, text_general_code, dispatch_date
+   FROM incidents_part1_part2
+   WHERE dispatch_date >= '2023-01-01' AND dispatch_date < '2024-01-01'
+     AND text_general_code = 'Burglary Residential'"
+) %>%
+  st_transform(st_crs(tracts))    # Carto returns EPSG 4326; translate immediately
+
+nrow(burglary)
+```
+
+::: callout-warning
+## Check for missing geometry
+
+Some records have no location. Drop them with `filter(!st_is_empty(burglary))`, and count how many you lost. Every point you drop is a point that won't be counted.
+:::
+
+```{r}
+burglary <- burglary %>% 
+  filter(!st_is_empty(burglary))
+
+nrow(burglary)
+```
+
+*119 records were lost because they had no location.*
+
+### Other layers to try
+
+These tables were available on Carto as of this fall. If a query fails, check the dataset's OpenDataPhilly page for the current table name.
+
++------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
+| Data             | Table                                                     | Filter on                            | Notes                                          |
++==================+===========================================================+======================================+================================================+
+| Crime incidents  | `incidents_part1_part2`                                   | `dispatch_date`, `text_general_code` | Pick specific offense types                    |
++------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
+| Shooting victims | `shootings`                                               | `date_`                              | Small enough to pull several years             |
++------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
+| 311 requests     | `public_cases_fc`                                         | `requested_datetime`, `service_name` | Use the count query above to see service names |
++------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
+| Indego stations  | *(not Carto)* `https://www.rideindego.com/stations/json/` | —                                    | The Week 4 feed                                |
++------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
+
+::: callout-note
+## Notes: Understanding Carto table names
+
+Datasets like [these](https://opendataphilly.org/datasets/licenses-and-inspections-business-licenses/) have a link to the API, e.g. <https://cityofphiladelphia.github.io/carto-api-explorer/#business_licenses>
+
+- where `business_licenses` after the `#` is the table name
+
+- and where "Fields" include all the column names that can be extracted
+
+[This](https://cityofphiladelphia.carto.com/datasets) is a list of all the datasets but it's not very legible.
+:::
+
+Datasets not on Carto often have a GeoJSON download link on their OpenDataPhilly page. `st_read()` reads those URLs too. For example, navigage to https://opendataphilly.org/, find a dataset that you'd like to import. I found city landmarks. On the page there is a link to a GeoJSON file. I simply right-clicked on that hyperlink and copied it and then used st_read() and pasted the link:
+
+landmarks \<- st_read("https://hub.arcgis.com/api/v3/datasets/6b2fe4a0fbe14e0a8e6afceaea230b8e_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1")
+
+### Your turn
+
+Pull **at least two layers** that you think relate to your outcome. Base your choice on your Part 2C answer:
+
+*Based on the mapped residuals above which seem to decrease in value closer to Center City, I wonder if Center City as a main hub of employment could be a contributing factor (which was not accounted for in the ACS Baseline model).*
+
+1.  *Based on the commercial characteristics of Center City, I wanted to see how the prevalence of places of employment would help reduce the time taken to travel. My proxy is [**point data**](https://opendataphilly.org/datasets/licenses-and-inspections-business-licenses/) showing the locations of L&I business licenses in Philly. (However, this may not cover all industries/places of employment + does not quantify the number of positions of employment each business has)*
+    1.  *I clicked on the [API link](https://cityofphiladelphia.github.io/carto-api-explorer/#business_licenses) to figure out the different column names*
+    2.  *I have selected the issue date from 2022-2023 since most licenses need to be renewed annually; this will give a good overview of all the existing businesses in 2023 so it is comparable with our ACS data from 2023*
+2.  *Based on some [quick research](https://phl17.com/phl17-news/philadelphia-has-third-longest-commute-in-the-nation-as-travel-times-rise/), congestion seems like a big contributor to travel time, but that is difficult to map because of the spatial spillover effect; mapping the level of congestion per tract does not correspond to the total amount of congestion the residents face as they are likely travelling to other locations to work.*
+3.  *It was a bit of a struggle to find effective transport-related predictors. The only transport-related contributors that have minimal spatial spillover effect I could think of is [**point data**](https://www.rideindego.com/stations/json/) of Indego stations which could represent first-mile journeys for commuters who take public transport that could shorten their travel time.*\
+
+```{r}
+#| label: my-layers
+
+#Pull business-licenses table via Carto
+business <- carto_get(
+  "SELECT cartodb_id, licensetype, initialissuedate, zip, the_geom
+   FROM business_licenses
+   WHERE initialissuedate >= '2022-01-01' AND initialissuedate < '2023-01-01' AND the_geom IS NOT NULL
+  ") %>%
+  filter(!st_is_empty(.)) %>%
+  st_transform(st_crs(tracts))    # Carto returns EPSG 4326; translate immediately
+
+
+plot(business, max.plot=1)
+
+```
+
+```{r}
+
+#point data of indego stations
+
+indego <- st_read("https://www.rideindego.com/stations/json/") %>%
+  select(id, name, geometry) %>%
+  st_transform(st_crs(tracts))
+
+plot(indego, max.plot=1)
+```
+
+**Answer:** Why these layers? What do you expect them to capture that the ACS variables don't?
+
+*Your answer:*
+
+1.  *The `business` point dataset represents the location of businesses in Philly. This indicates the locations of employment; tracts with higher locations of employment suggest that residents have the potential to be closer to their workplace (as people tend to choose to live near work), which could reduce the average travel time.*
+2.  *The `indego` point dataset represents the location of indego bikeshare stations in Philly. This indicates the presence of first- and last-mile transit options for commuters taking public transport, allowing them to cut down their travel time.*
+
+------------------------------------------------------------------------
+
+## Part 4: Building spatial features
+
+Every feature below reuses a Week 4 tool. The worked examples use burglaries and Indego stations; you build the same types from your own layers.
+
+### 4A: Counting
+
+How many burglaries fall in each tract?
+
+```{r}
+#| label: count
+tracts <- tracts %>%
+  mutate(n_burglary = lengths(st_intersects(., burglary)))
+
+summary(tracts$n_burglary)
+```
+
+A tract with no burglaries gets 0, not NA, so Rule 1 is safe.
+
+### 4B: Density: don't skip this
+
+Raw counts mostly measure **tract size**. A big tract has more of everything. Normalize by area, by population, or by housing units, depending on what makes sense for the thing you're counting.
+
+```{r}
+#| label: density
+tracts <- tracts %>%
+  mutate(
+    area_sqmi         = as.numeric(st_area(.)) / 27878400,   # sq ft in a sq mile
+    burglary_per_sqmi = n_burglary / area_sqmi,
+    burglary_per_1k   = n_burglary / popE * 1000
+  )
+```
+
+::: callout-note
+## Per capita in low-population tracts
+
+If a tract has 40 residents and 3 burglaries, its rate is 75 per 1,000, which is a huge number built on tiny counts. Look at the tracts with the highest per-capita rates before you trust them. This is the Week 3 lesson about small denominators again.
+:::
+
+### 4C: Measuring distance to the nearest thing
+
+How far is each tract from its nearest Indego station? Use the Week 4 pattern: find the nearest feature, then measure to it **element by element**.
+
+(centroids is not exactly a very helpful measure of anything)
+
+```{r}
+#| label: nearest
+tract_pts <- st_point_on_surface(tracts)   # always inside the tract, unlike a centroid
+
+nearest_idx <- st_nearest_feature(tract_pts, indego)
+
+tracts <- tracts %>%
+  mutate(dist_station_mi = as.numeric(
+    st_distance(tract_pts, indego[nearest_idx, ], by_element = TRUE)) / 5280)
+```
+
+### 4D: Measuring distance to one place
+
+Sometimes the "thing" is a single location, such as City Hall as a stand-in for the center of the regional economy.
+
+```{r}
+#| label: city-hall
+city_hall <- st_sfc(st_point(c(-75.1636, 39.9526)), crs = 4326) %>%
+  st_transform(st_crs(tracts))
+
+tracts <- tracts %>%
+  mutate(dist_ch_mi = as.numeric(st_distance(tract_pts, city_hall)) / 5280)
+```
+
+### 4E: Your turn
+
+Build **at least [three]{.underline} spatial features** from your own layers, and use at least two types (count, density, nearest distance, distance to a place). After **each one**, fit a model, cross-validate it, and log it.
+
+*I will do*
+
+1.  `business_density_bypop`: *Business density (number of businesses per population)*
+2.  `dist_station_mi`: *Indego station density (number of indego stations per sq mi)*
+3.  `dist_ch_mi`: *Distance from City Hall in miles*
+
+```{r}
+#| label: my-spatial
+tracts <- tracts %>%
+  mutate(n_businesses = lengths(st_intersects(.,business))) %>%  
+  #normalise to population --> get business_density
+  mutate(business_density_bypop = n_businesses/workingpopE)
+
+#i also already have dist_station_mi and dist_ch_mi
+
+
+#indego has already been done!
+# cannot do indego density because it does not account for cross-tract interactions
+  
+
+f2 <- y ~ carE + peakE + incomeE +
+  business_density_bypop + dist_station_mi + dist_ch_mi
+
+
+m2 <- lm(f2, data = tracts)
+
+summary(m2)
+
+```
+
+```{r}
+model_log <- model_log %>%
+  add_row(model = "m2", added = "spatial features: business_density_bypop + dist_station_mi + dist_ch_mi",
+          cv_rmse = cv_rmse(f2, tracts),
+          notes = "Improved RMSE by 0.25min")
+
+
+# remove second row if needed
+#model_log <- model_log[-2, ]
+
+# repeat for each feature
+model_log
+
+```
+
+**Answer:** Which spatial feature helped most? Did any feature you expected to help do nothing, or make CV RMSE worse? Why might that be?
+
+*Your answer:*
+
+*The **CV RMSE improved by 0.25 minutes**, indicating that the model is only slightly better at predicting unseen data.*
+
+*However the t-test for car, income, and peak produces a p-value larger than 0.05, indicating a non-statistically significant linear relationship between these predictors and travel time to work. This means that even though while its individual effect on travel time are not statistically significant, it might still be **providing useful information for out-of-sample prediction** that helps with cross-validation.*
+
+*(Before the new spatial features were added, carE and incomeE passed the t-test but not any more. This could mean that adding the spatial features made carE and incomeE redundant.)*
+
+------------------------------------------------------------------------
+
+## Part 5: Transforming features
+
+**Watch the October 9 recorded lecture before you start this part.** Below is a summary to work from.
+
+So far, every predictor has entered the model as a straight line: each additional unit of X changes predicted Y by the same amount, everywhere. Transformations let the model bend. For prediction, the question is simply **does the bend lower CV RMSE?** For interpretation, each transformation changes what a coefficient means, so you need to know how to read it.
+
+::: callout-tip
+## Transform predictors, not your outcome
+
+Keep your outcome `y` untransformed in this assignment. If you model `log(y)`, your CV RMSE comes out in log units and can't be compared to the other rows in your log. (Predicting a logged outcome well requires back-transforming, which is an A4 topic.)
+:::
+
+### 5A: Logs, for skewed predictors
+
+Many urban variables are skewed: a few tracts have huge values, and most have small ones. Income, density, and counts are typical. A log compresses the long tail, so a model can use the difference between 1 and 10 as well as the difference between 100 and 1,000.
+
+```{r}
+#| label: log-look
+ggplot(tracts, aes(x = burglary_per_sqmi)) + geom_histogram(bins = 30) + theme_minimal()
+ggplot(tracts, aes(x = log1p(burglary_per_sqmi))) + geom_histogram(bins = 30) + theme_minimal()
+```
+
+::: callout-warning
+## log(0) doesn't exist
+
+`log(0)` is `-Inf`, and it will break your model. Counts and densities often include zeros. Use `log1p(x)`, which computes `log(x + 1)`, for anything that can be 0.
+:::
+
+**Reading the coefficient:** when a predictor is logged, a **1% increase** in X goes with a change of about **β/100** in Y, in Y's units. With `log1p`, this reading is approximate for small values of X.
+
+### 5B: Squared terms, for curves
+
+If your scatterplot bends (rising and then flattening, or falling and then rising), a squared term lets the line curve. Write it with `I()`, which tells R to do the arithmetic rather than read `^` as formula syntax.
+
+```{r}
+#| label: squared-example
+m_sq <- lm(y ~ dist_ch_mi + I(dist_ch_mi^2), data = tracts)
+summary(m_sq)
+```
+
+**Reading the coefficient:** you can't read either coefficient alone anymore. The effect of X depends on where you are along X. A positive linear term with a negative squared term means Y rises with X and then levels off or turns down. Plot the fitted curve to see it:
+
+```{r}
+#| label: squared-plot
+ggplot(tracts, aes(x = dist_ch_mi, y = y)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = FALSE, color = "red") +
+  theme_minimal()
+```
+
+### 5C: Categorical variables
+
+Sometimes a number works better as groups, either because the relationship isn't smooth or because the categories are meaningful. You can make categories from any variable with `case_when()` or `cut()`, and then make sure R treats them as a **factor**.
+
+```{r}
+#| label: categorical-example
+tracts <- tracts %>%
+  mutate(
+    ring = case_when(
+      dist_ch_mi < 2 ~ "Core",
+      dist_ch_mi < 5 ~ "Inner",
+      TRUE           ~ "Outer"
+    ),
+    ring = factor(ring, levels = c("Core", "Inner", "Outer"))
+  )
+
+tracts %>% st_drop_geometry() %>% count(ring)
+
+m_cat <- lm(y ~ ring, data = tracts)
+summary(m_cat)
+```
+
+**Reading the coefficients:** R turns a factor with k categories into k − 1 dummy variables. The category left out is the **reference level** (here, "Core," the first level). Each coefficient is the **difference from the reference**: `ringOuter` is how much higher or lower predicted Y is in outer tracts *compared to core tracts*, holding everything else in the model constant. To change the reference, use `relevel(ring, ref = "Outer")`.
+
+::: callout-note
+## Check your group sizes
+
+If a category has only a handful of tracts, its coefficient is unstable, and in cross-validation some folds may not contain it at all. Aim for at least 20 tracts per category.
+:::
+
+### 5D: Your turn
+
+Try **at least one of each**: a log, a squared term, and a categorical variable. Choose which variables to transform based on your plots, not at random. Log each model.
+
+**To decide which variable to transform, I will first plot all the histograms and scatterplots of my predictors:**
+
+```{r}
+library(tidyverse)
+
+predictors <- c("carE", "peakE", "incomeE", 
+                "business_density_bypop", "dist_station_mi", "dist_ch_mi")
+
+# Faceted Histograms
+tracts %>%
+  st_drop_geometry() %>%
+  select(all_of(predictors)) %>%
+  pivot_longer(cols = everything(), names_to = "predictor", values_to = "value") %>%
+  ggplot(aes(x = value)) +
+  geom_histogram(bins = 30, fill = "steelblue", color = "white", alpha = 0.8) +
+  facet_wrap(~ predictor, scales = "free") +
+  theme_minimal()
+```
+
+```{r}
+tracts %>%
+  st_drop_geometry() %>%
+  select(all_of(predictors), y) %>%
+  pivot_longer(cols = all_of(predictors), names_to = "predictor", values_to = "value") %>%
+  ggplot(aes(x = value, y = y)) +
+  geom_point(alpha = 0.5, color = "darkblue") +
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2), color = "red", se = FALSE) +  # Optional linear trend line
+  facet_wrap(~ predictor, scales = "free_x") +
+  theme_minimal() +
+  labs(
+    x = "Predictor Value",
+    y = "Commute time"
+  )
+```
+
++------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| *Transformation type*  | *Variable chosen and why*                                                                                                                                                                                                                                                                                   |
++========================+=============================================================================================================================================================================================================================================================================================================+
+| *log*                  | ***`business_density_bypop`***                                                                                                                                                                                                                                                                              |
+|                        |                                                                                                                                                                                                                                                                                                             |
+|                        | *The histograms show strong right skew for `dist_ch_mi`, but since this has been chosen already for the squared term, I have selected **`business_density_bypop`** which is the second most right skewed. The logarithmic transformation will help to normalise*                                            |
++------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| *squared term*         | ***`dist_ch_mi`***                                                                                                                                                                                                                                                                                          |
+|                        |                                                                                                                                                                                                                                                                                                             |
+|                        | *The scatterplots show the most bending for `dist_ch_mi`, which could make sense because commute times generally increase further away from Center City because people take longer to get into central for work - but those living much further away might have chosen to work in the peripheries instead.* |
++------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| *categorical variable* | ***`carE`***                                                                                                                                                                                                                                                                                                |
+|                        |                                                                                                                                                                                                                                                                                                             |
+|                        | *The scatterplots shows the most likely a jumping relationship (different slopes at different values of x) instead of a smooth slope (although not really) so we will try it on `carE`*                                                                                                                     |
++------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+**How did the log transformation affect the `business_density_by_pop` histogram?**
+
+```{r}
+hist(log(tracts$business_density_bypop ))
+```
+
+```{r}
+
+# LOGARITHMIC
+
+#| label: my-transforms
+f_log <- y ~ carE + peakE + incomeE +
+  log1p(business_density_bypop) + dist_station_mi + dist_ch_mi
+
+
+model_log <- model_log %>%
+  add_row(model = "m3", added = "log: business_density_bypop",
+          cv_rmse = cv_rmse(f_log, tracts),
+          notes = "Improved m2 RMSE by 0.002min")
+
+#model_log
+
+#model_log <- model_log[-3, ]
+```
+
+**Squared term:** The squared term has a turning point within the data range so it can be plotted:
+
+```{r}
+# SQUARED TERM
+
+# squared term
+f_square <- y ~ carE + peakE + incomeE +
+                 business_density_bypop + dist_station_mi + dist_ch_mi + I(dist_ch_mi^2)
+
+
+# check squared term
+m_sq <- lm(f_square, data = tracts)
+coef(m_sq)[c("dist_ch_mi", "I(dist_ch_mi^2)")]
+
+b1 <- coef(m_sq)["dist_ch_mi"]
+b2 <- coef(m_sq)["I(dist_ch_mi^2)"]
+-b1 / (2 * b2)          # the turning point
+
+range(tracts$dist_ch_mi)  # is it inside the data?
+
+# yes it is within the data range so i can add it to the model
+
+model_log <- model_log %>%
+  add_row(model = "m4", added = "squared term: dist_ch_mi",
+          cv_rmse = cv_rmse(f_square, tracts),
+          notes = "Improved m2 RMSE by 0.05min")
+
+#model_log
+#model_log <- model_log[-4, ]
+```
+
+**Categorical data:** There are enough observations for my 3 categories so it can be plotted.
+
+```{r}
+
+# categorical
+
+
+#check range
+range(tracts$carE)
+
+
+# separate based on visually inspected pattern in scatterplot
+# first section: 5-33
+# second section: 33-70
+# third section: 70 - 98 --> 31 observations, which is enough for a 10fold cv
+
+tracts <- tracts %>%
+  mutate(
+    ringCar = case_when(
+      carE < 33 ~ "Low",
+      carE < 70 ~ "Mid",
+      TRUE        ~ "High"
+    ),
+    ringCar = factor(ringCar, levels = c("Low", "Mid", "High")) # "Low" is baseline
+  )
+
+# check number of observations per ring
+tracts %>% st_drop_geometry() %>% count(ringCar)
+
+# model matrix just to see what columns are generated
+#model.matrix(~ ringCar, data = st_drop_geometry(tracts)) %>% head(8)
+
+f_cat <- y ~ peakE + incomeE + business_density_bypop + 
+  dist_station_mi + dist_ch_mi + ringCar
+m_cat <- lm(f_cat, data = tracts)
+#coef(m_cat)[c("ringCarMid", "ringCarHigh")]
+```
+
+Final model result
+
+```{r}
+summary(m_cat)
+
+
+model_log <- model_log %>%
+  add_row(model = "m5", added = "categorical variable: added ringCar instead of carE",
+          cv_rmse = cv_rmse(f_cat, tracts),
+          notes = "Improved m2 RMSE by 0.04min")
+
+#model_log
+
+
+#model_log <- model_log[-(5), ]
+```
+
+Final model log:
+
+```{r}
+model_log
+```
+
+**Answer:** Which transformation helped most? For your categorical variable, write one sentence reading one of its coefficients correctly, naming the reference level.
+
+*Your answer:*
+
+*Best transformation: All 3 transformations did not improve the RMSE the most. The squared term for dist_ch_mi helped the most (0.05min). This could make sense in explaining the commuting time: Generally, a higher distance from City Hall increases the commuting time; but at a very large distance from City Hall, people might choose a different workplace in the peripheries that is much easier to get to.*
+
+*For the categorical variable: the coefficient for ringCarMid is 3.37. This means that on average, areas (our ringCarMid category) with a medium amount of car commuters (33-70%) will have **a commute time that is 3.37 minutes longer** than areas with a low amount of car commuters (\<33%) (our reference category ringCarLow), holding other predictors constant. The positive coefficient is interesting because it suggests that car commuters have a longer commute than non-car commuters (e.g. public transport and walking). This is quite unintuitive because you would expect the car commuters to be able to travel faster and hence get to work faster. However, it is likely that the non-car commuters live much closer to their workplace, allowing them to take alternative forms of transport to work.*
+
+------------------------------------------------------------------------
+
+## Part 6: Your final model
+
+```{r}
+model_log
+```
+
+Combine the features and transformations that earned their place, **judged by CV RMSE, not p-values.**
+
+### *Since all 3 transformed variables helped, **we will add all 3 into m2***
+
+Final model:
+
+```{r}
+#| label: final
+f_final <- y ~ peakE + incomeE +
+  business_density_bypop + dist_station_mi + dist_ch_mi + I(dist_ch_mi^2) + ringCar
+
+m_final <- lm(f_final, data = tracts)
+summary(m_final)
+```
+
+Final CV RMSE:
+
+```{r}
+model_log <- model_log %>%
+  add_row(model = "final", added = "all above",
+          cv_rmse = cv_rmse(f_final, tracts),
+          notes = "Final model misses by 4.95min. This is a 0.3min improvement from baseline")
+
+model_log
+
+#model_log <- model_log[-6, ]
+```
+
+### Where is the final model wrong?
+
+```{r}
+#| label: resid-map-2
+tracts <- tracts %>% mutate(resid_final = residuals(m_final))
+
+ggplot(tracts) +
+  geom_sf(aes(fill = resid_final), color = NA) +
+  scale_fill_gradient2(low = "#2166ac", mid = "grey95", high = "#b2182b", midpoint = 0) +
+  theme_void() +
+  labs(title = "Final model: where it's wrong",
+       subtitle = "Red = actual higher than predicted",
+       fill = "Residual")
+```
+
+Put your two residual maps side by side, or put them next to each other in the rendered document. Did the clusters from Part 2C shrink? Where did they stay?
+
+**Let me plot them side by side on the same scale so it can be compared:**
+
+```{r}
+# need to pivot to long format to facet_wrap
+tracts %>%
+  pivot_longer(
+    cols = c(resid_m1, resid_final),
+    names_to = "model",
+    values_to = "residual"
+  ) %>%
+  mutate(
+    model = factor(
+      model,
+      levels = c("resid_m1", "resid_final"),
+      labels = c("Baseline Model (m1)", "Final Model (final)")
+    )
+  ) %>%
+  ggplot() +
+  geom_sf(aes(fill = residual), color = NA) +
+  scale_fill_gradient2(
+    low = "#2166ac",
+    mid = "grey95",
+    high = "#b2182b",
+    midpoint = 0
+  ) +
+  facet_wrap(~model) +
+  theme_void() +
+  theme(
+    strip.text = element_text(size = 11, face = "bold"),
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 14)
+  ) +
+  labs(
+    title = "Model Residual Comparison",
+    subtitle = "Red = observed higher than predicted | Blue = observed lower than predicted",
+    fill = "Residual"
+  )
+```
+
+```{r}
+library(tidyverse)
+
+tracts %>%
+  pivot_longer(
+    cols = c(resid_m1, resid_final),
+    names_to = "model",
+    values_to = "residual"
+  ) %>%
+  mutate(
+    model = factor(
+      model,
+      levels = c("resid_m1", "resid_final"),
+      labels = c("Baseline (m1)", "Final (final)")
+    )
+  ) %>%
+  ggplot(aes(x = residual, color = model, fill = model)) +
+  geom_density(alpha = 0.2, linewidth = 1) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  scale_color_manual(values = c("Baseline (m1)" = "#2b8cbe", "Final (final)" = "#e41a1c")) +
+  scale_fill_manual(values = c("Baseline (m1)" = "#2b8cbe", "Final (final)" = "#e41a1c")) +
+  theme_minimal() +
+  labs(
+    title = "Residual Distribution Comparison",
+    x = "Residual Value",
+    y = "Density",
+    color = "Model",
+    fill = "Model"
+  )
+```
+
+*Visual inspection of the two choropleth maps side by side does not yield any drastically different results, suggesting the final model did not make much improvement to predicting unseen data. However, plotting the histograms do show that the final model have more residuals clustered around zero; it's just that the clusters are (visually) not very different.*
+
+### Are the biggest misses in the least reliable tracts?
+
+```{r}
+#| label: fog
+ggplot(tracts, aes(x = y_cv, y = abs(resid_final))) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = FALSE) +
+  labs(x = "CV of your outcome estimate (%)", y = "Size of the miss") +
+  theme_minimal()
+```
+
+*So there is a slight upwards slope: we notice some tracts with high CVs also having a very big miss in the model. Indeed the biggest misses are in the least reliable tract. This could suggest that the model's failure in those "big miss" tracts are due to data unreliability.*
+
+------------------------------------------------------------------------
+
+## Part 7: Reflection (about 300 words)
+
+Answer in prose, drawing on your model log (incorporate our words of the day for bonus points. just kidding):
+
+**(*see "Archive" for supporting R code)***
+
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Question                                                                                                                                                       | Answer                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
++================================================================================================================================================================+=====================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================+
+| 1.  **What helped, and what didn't?** Name the feature that lowered CV RMSE the most and the one that disappointed you most. Offer a reason for each.          | The introduction of spatial features in m3 was definitely the most helpful. I extracted the individual effects of `business_density_bypop + dist_station_mi + dist_ch_mi` below and have identified that **`dist_ch_mi` had the best impact** (in fact, `business_density_bypop` reduced its effects). It lowered the CV RMSE by 0.33 minutes. The squared term for distance to City Hall helps in explaining the commuting time: Generally, a higher distance from City Hall increases the commuting time because people are further from places of employment. which concentrates in Center City. |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                                                                                                                                                                | - The squared term helped more - at a very large distance from City Hall, people might choose a different workplace in the peripheries that is much easier to get to.                                                                                                                                                                                                                                                                                                                                                                                                                               |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                                                                                                                                                                | I was most disappointed by `business_density_bypop` (see below in *Archive*) which worsened the RMSE by 0.02min. This suggests that business density in the tract has a negative predictive effect on commuting time, meaning that people are unlikely to work in the same (exact) place that they live in.                                                                                                                                                                                                                                                                                         |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 2.  **Read one coefficient twice.** Choose a variable in your final model. Give its β̂ reading and its ŷ reading in one sentence each.                          | **β̂ reading:** Holding all other predictors constant, an increase in median household income (per year) by \$10,000 is associated with a 0.07787 minute (approx. 4.7 seconds) decrease in commute time.                                                                                                                                                                                                                                                                                                                                                                                             |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                                                                                                                                                                | **ŷ reading:** For a census tract with a median household income of \$80,000, and average values across all other predictors, the model predicts an average commute time of 34 minutes.                                                                                                                                                                                                                                                                                                                                                                                                             |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 3.  **What's still missing?** Look at your final residual map. Name one thing about those places you'd want to measure next, and where you might get the data. | Honestly I am not too sure :((((                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                                                                                                                                                                | The dark blue (negative) long residual in the middle of the map is Pennypack Trail, and one of the red residuals is Burholme Park. This probably means it contains very few housing units which means a very small sample size. This results in a high coefficient of variation meaning that the model might be predicting values accurately, but the actual values measured are innaccurate.                                                                                                                                                                                                       |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 4.  **How much of the remaining error might be uncertainty or statistical noise?** Use your last plot.                                                         | We do see some sort of correlation where tracts with high CVs also having a very big miss in the model. Indeed the biggest misses are in the least reliable tract. This could suggest that the model's failure in those "big miss" tracts are due to data unreliability.                                                                                                                                                                                                                                                                                                                            |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                                                                                                                                                                | But what is considered high CV and large miss?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                                                                                                                                                                | 1.  We defined high CV as \> 40 earlier                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+|                                                                                                                                                                | 2.  The final CV RMSE is 4.95. We define a "large miss" as \> 2\*RMSE = 10.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                                                                                                                                                                | The scatterplot of "miss" against CV shows there are only 4 points with those 2 conditions. Therefore there is not a lot of error that attributed to uncertainty.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+------------------------------------------------------------------------
+
+## Submitting
+
+Render this document to HTML and submit the link on Canvas by Friday, October 16. I'll miss you all terribly while I'm away. Please send letters or correspondences to my office mailbox.
+
+------------------------------------------------------------------------
+
+# Archive
+
+**Question 1**
+
+```{r}
+library(tidyverse)
+
+# Initialize empty tibble
+spatial_rmse <- tibble(
+  model   = character(),
+  added   = character(),
+  cv_rmse = numeric()
+)
+
+
+# Baseline formula with non-spatial features
+f_base <- y ~ peakE + incomeE
+
+spatial_rmse <- tibble(
+  model   = character(),
+  added   = character(),
+  cv_rmse = numeric()
+) %>%
+  add_row(model = "baseline",  added = "peakE + incomeE",                           cv_rmse = cv_rmse(f_base, tracts)) %>%
+  add_row(model = "spatial_1", added = "+ business_density_bypop",                cv_rmse = cv_rmse(y ~ peakE + incomeE + business_density_bypop, tracts)) %>%
+  add_row(model = "spatial_2", added = "+ dist_station_mi",                       cv_rmse = cv_rmse(y ~ peakE + incomeE + business_density_bypop + dist_station_mi, tracts)) %>%
+  add_row(model = "spatial_3", added = "+ dist_ch_mi",          cv_rmse = cv_rmse(y ~ peakE + incomeE + business_density_bypop + dist_station_mi + dist_ch_mi, tracts))
+
+spatial_rmse
+```
+
+**Question 2**
+
+```{r}
+# Helper function to get the most common factor level (mode)
+get_mode <- function(x) {
+  ux <- unique(na.omit(x))
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+# 1. Create a 1-row data frame with incomeE = 80000
+sample_tract <- tracts %>%
+  summarize(
+    incomeE                = 80000,
+    peakE                  = mean(peakE, na.rm = TRUE),
+    business_density_bypop = mean(business_density_bypop, na.rm = TRUE),
+    dist_station_mi        = mean(dist_station_mi, na.rm = TRUE),
+    dist_ch_mi             = mean(dist_ch_mi, na.rm = TRUE),
+    ringCar                = get_mode(ringCar) # uses most frequent factor level
+  )
+
+# 2. Predict y-hat
+predict(m_final, newdata = sample_tract)
+```
+
+**Question 3**
+
+```{r}Question 3}
+# adding basemap to residuals
+
+library(maptiles)
+library(tidyterra)
+
+bg_tiles <- get_tiles(tracts, provider = "Esri.WorldGrayCanvas", crop = TRUE)
+
+ggplot() +
+  geom_spatraster_rgb(data = bg_tiles) +
+  geom_sf(data = tracts, aes(fill = resid_final), color = NA, alpha = 0.65) +
+  scale_fill_gradient2(
+    low = "#2166ac", 
+    mid = "grey95", 
+    high = "#b2182b", 
+    midpoint = 0
+  ) +
+  theme_void() +
+  labs(
+    title = "Final model: where it's wrong",
+    subtitle = "Red = obsereved higher than predicted",
+    fill = "Residual"
+  )
+```
