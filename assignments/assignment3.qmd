@@ -1,5 +1,5 @@
 ---
-title: "Verify the Claim: Rise of poverty rates in Philadelphia Neighbourhoods"
+title: "Assignment 3: Verify the Claim: Rise of poverty rates in Philadelphia Neighbourhoods"
 author: "Lauryn Chan"
 date: 2026-9-14
 format:

@@ -1,14 +1,11 @@
 ---
 title: "Week 5: Regression"
+description: "Explaining RMSE and kfolds"
 format: html
 date: 2026-10-11
 ---
 
 # Notes
-
-- first, need to fix rendering for notes 4 because it is not appearing!!
-
-- then, notes
 
 **RMSE:**
 

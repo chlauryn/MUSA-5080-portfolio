@@ -1,5 +1,5 @@
 ---
-title: "Assignment: Building Features, Watching What Happens"
+title: "Assignment 4: Building Features, Watching What Happens"
 subtitle: "MUSA 5080 · Integrates Weeks 1–5 · Due Friday, October 16"
 author: "Lauryn Chan"
 date: 2026-10-13
@@ -126,6 +126,9 @@ Use `load_variables(2023, "acs5")` to browse and find exact variable codes.
 
 Choose **three to five ACS predictors** for your baseline model. They should be things that plausibly relate to your outcome, but **none of them may be built from your outcome** (Rule 3).
 
+::: callout-note
+*I will model **mean travel time to work**.*
+
 - `total_travel_time = "B08013_001":` Aggregated travel time to work (min)
 
 - `workingpop = "B08303_001":` Working population above 16 and **not** working from home
@@ -137,6 +140,7 @@ Choose **three to five ACS predictors** for your baseline model. They should be 
 - `am7 to am830 = "B08302_0xx":` Number of working population that leave at that time to go to work
 
 *Predictors were speculated based on some preliminary research \[[1](https://www.philadelphiafed.org/-/media/frbp/assets/economy/articles/economic-insights/2023/q3/eiq323-not-all-rush-hours-are-the-same.pdf), [2](https://phl17.com/phl17-news/philadelphia-has-third-longest-commute-in-the-nation-as-travel-times-rise/)\]*
+:::
 
 ```{r}
 #| output: false
@@ -201,15 +205,17 @@ philly_tracts <- philly_tracts %>%
   select(c(GEOID, NAME, popE, workingpopE, y, y_moe, y_cv, carE, incomeE, peakE, geometry))
 ```
 
-**Our variables are:**
+::: callout-important
+**Our final transformed variables are:**
 
-- `y` = avg travel time (minutes) per person
+- `y` = average travel time (min) per person
 
-- `carE` = PERCENTAGE of car users to commute
+- `carE` = percentage (%) of car users to commute
 
-- `incomeE` = MEDIAN household income in past 12 months
+- `incomeE` = median household income (\$) in past 12 months
 
-- `peakE` = PERCENTAGE of commuters travelling during peak hour
+- `peakE` = percentage (%) of commuters travelling during peak hour (7am-8.59am)
+:::
 
 ### 1B: Is it reliable enough to model?
 
@@ -256,6 +262,9 @@ tracts <- philly_tracts %>%
   filter(workingpopE > 0,
          !is.na(y),
          # add !is.na() for each baseline predictor like in the in-class lab
+         # we use !is.na() here instead of >0 because variables selected could be negative
+         # (but in my case all variables are positive values only)
+         
          !is.na(carE),
          !is.na(peakE),
          !is.na(incomeE)
@@ -270,7 +279,7 @@ nrow(tracts)
 *I lost 28 tracts.*
 
 ```{r}
-# build an anti-join to see
+# build an anti-join to identify which are the lost tracts
 
 lost <- philly_tracts %>%
   st_drop_geometry() %>%
@@ -290,7 +299,7 @@ lost
 
 - *Tract 301 seems to cover a residential area but for some reason is missing income data.*
 
-*I am not too sure about some (like 301), but 380 out of 408 observations are still valid so the analysis can continue.*
+*I am not too sure about some (like Tract 301), but 380 out of 408 observations are still valid so the analysis can continue on the 380 observations.*
 
 ------------------------------------------------------------------------
 
@@ -309,7 +318,8 @@ predictors <- c("carE", "peakE", "incomeE")
 for (pred in predictors) {
   p <- ggplot(tracts, aes(x = .data[[pred]], y = y)) + 
     geom_point(alpha = 0.5) +
-    geom_smooth(method = "lm", se = FALSE) +
+    geom_smooth(#method = "lm", #REMOVE THIS! so they will plot a smoothing line instead
+                se = FALSE) +
     theme_minimal() +
     labs(x = pred) # Dynamically label the x-axis
   
@@ -317,7 +327,11 @@ for (pred in predictors) {
 }
 ```
 
-All 3 variables potentially show a linear relationship with y (travel time), so we can try to fit a multiple linear regression.
+*The smoothing function shows that peakE most likely has a linear relationship with y (commute time). carE and incomeE show a bit of bending.*
+
+*But overall, if we were to avoid overfitting to local fluctuations, all 3 graphs show that the data points generally follow a straight line path as we move across the x-axis.*
+
+*We can try fitting a multiple linear regression with these 3 predictors.*
 
 ### 2B: Fit and log
 
@@ -335,9 +349,8 @@ model_log <- model_log %>%
           cv_rmse = cv_rmse(f1, tracts),
           notes = "Baseline model misses by 5.25min")
 
+#model_log <- model_log[-1, ]  # to remove row
 model_log
-
-#model_log <- model_log[-1, ]
 ```
 
 Write the CV RMSE as a sentence, in your outcome's units:
@@ -482,7 +495,8 @@ Pull **at least two layers** that you think relate to your outcome. Base your ch
     1.  *I clicked on the [API link](https://cityofphiladelphia.github.io/carto-api-explorer/#business_licenses) to figure out the different column names*
     2.  *I have selected the issue date from 2022-2023 since most licenses need to be renewed annually; this will give a good overview of all the existing businesses in 2023 so it is comparable with our ACS data from 2023*
 2.  *Based on some [quick research](https://phl17.com/phl17-news/philadelphia-has-third-longest-commute-in-the-nation-as-travel-times-rise/), congestion seems like a big contributor to travel time, but that is difficult to map because of the spatial spillover effect; mapping the level of congestion per tract does not correspond to the total amount of congestion the residents face as they are likely travelling to other locations to work.*
-3.  *It was a bit of a struggle to find effective transport-related predictors. The only transport-related contributors that have minimal spatial spillover effect I could think of is [**point data**](https://www.rideindego.com/stations/json/) of Indego stations which could represent first-mile journeys for commuters who take public transport that could shorten their travel time.*\
+
+*It was a bit of a struggle to find effective transport-related predictors. The only transport-related contributors that have minimal spatial spillover effect I could think of is [**point data**](https://www.rideindego.com/stations/json/) of Indego stations which could represent first-mile journeys for commuters who take public transport that could shorten their travel time.*\
 
 ```{r}
 #| label: my-layers
@@ -516,8 +530,8 @@ plot(indego, max.plot=1)
 
 *Your answer:*
 
-1.  *The `business` point dataset represents the location of businesses in Philly. This indicates the locations of employment; tracts with higher locations of employment suggest that residents have the potential to be closer to their workplace (as people tend to choose to live near work), which could reduce the average travel time.*
-2.  *The `indego` point dataset represents the location of indego bikeshare stations in Philly. This indicates the presence of first- and last-mile transit options for commuters taking public transport, allowing them to cut down their travel time.*
+1.  *The **`business`** point dataset represents the location of businesses in Philly. This indicates the locations of employment; tracts with higher locations of employment suggest that residents have the potential to be closer to their workplace (as people tend to choose to live near work), which could reduce the average travel time.*
+2.  *The **`indego`** point dataset represents the location of indego bikeshare stations in Philly. This indicates the presence of first- and last-mile transit options for commuters taking public transport, allowing them to cut down their travel time.*
 
 ------------------------------------------------------------------------
 
@@ -593,11 +607,14 @@ tracts <- tracts %>%
 
 Build **at least [three]{.underline} spatial features** from your own layers, and use at least two types (count, density, nearest distance, distance to a place). After **each one**, fit a model, cross-validate it, and log it.
 
-*I will do*
+::: callout-important
+*I will compute*
 
 1.  `business_density_bypop`: *Business density (number of businesses per population)*
-2.  `dist_station_mi`: *Indego station density (number of indego stations per sq mi)*
-3.  `dist_ch_mi`: *Distance from City Hall in miles*
+2.  `dist_station_mi`: *Distance to nearest Indego station from tract centroid (miles)*
+3.  `dist_ch_mi`: *Distance from City Hall (miles)*
+    - *direct displacement based on initial and final positions, not by path taken)*
+:::
 
 ```{r}
 #| label: my-spatial
@@ -627,7 +644,7 @@ summary(m2)
 model_log <- model_log %>%
   add_row(model = "m2", added = "spatial features: business_density_bypop + dist_station_mi + dist_ch_mi",
           cv_rmse = cv_rmse(f2, tracts),
-          notes = "Improved RMSE by 0.25min")
+          notes = "Improved RMSE by 0.2min")
 
 
 # remove second row if needed
@@ -642,11 +659,11 @@ model_log
 
 *Your answer:*
 
-*The **CV RMSE improved by 0.25 minutes**, indicating that the model is only slightly better at predicting unseen data.*
+*The **CV RMSE improved by 0.19 minutes**, indicating that the model is only slightly better at predicting unseen data.*
 
-*However the t-test for car, income, and peak produces a p-value larger than 0.05, indicating a non-statistically significant linear relationship between these predictors and travel time to work. This means that even though while its individual effect on travel time are not statistically significant, it might still be **providing useful information for out-of-sample prediction** that helps with cross-validation.*
+- *However the t-test for car, income, and peak produces a p-value larger than 0.05, indicating a non-statistically significant linear relationship between these predictors and travel time to work. This means that even though while its individual effect on travel time are not statistically significant, it might still be **providing useful information for out-of-sample prediction** that helps with cross-validation.*
 
-*(Before the new spatial features were added, carE and incomeE passed the t-test but not any more. This could mean that adding the spatial features made carE and incomeE redundant.)*
+- *Before the new spatial features were added, carE and incomeE passed the t-test but not any more. This could mean that adding the spatial features made carE and incomeE redundant.*
 
 ------------------------------------------------------------------------
 
@@ -769,6 +786,7 @@ tracts %>%
   )
 ```
 
+::: callout-important
 +------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | *Transformation type*  | *Variable chosen and why*                                                                                                                                                                                                                                                                                   |
 +========================+=============================================================================================================================================================================================================================================================================================================+
@@ -784,6 +802,7 @@ tracts %>%
 |                        |                                                                                                                                                                                                                                                                                                             |
 |                        | *The scatterplots shows the most likely a jumping relationship (different slopes at different values of x) instead of a smooth slope (although not really) so we will try it on `carE`*                                                                                                                     |
 +------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+:::
 
 **How did the log transformation affect the `business_density_by_pop` histogram?**
 
@@ -791,11 +810,17 @@ tracts %>%
 hist(log(tracts$business_density_bypop ))
 ```
 
+*It helped to normalize `business_density_bypop!`*
+
+### Adding the log, squared term, and categorical variable:
+
+**A) Log:** `log1p()` is used instead of `log()` avoid issues when x is zero (since we did not filter this out for `business_density_bypop`)
+
 ```{r}
 
 # LOGARITHMIC
 
-#| label: my-transforms
+#| label: my-transformsiter
 f_log <- y ~ carE + peakE + incomeE +
   log1p(business_density_bypop) + dist_station_mi + dist_ch_mi
 
@@ -810,7 +835,7 @@ model_log <- model_log %>%
 #model_log <- model_log[-3, ]
 ```
 
-**Squared term:** The squared term has a turning point within the data range so it can be plotted:
+**B) Squared term:** The squared term for `dist_ch_mi` has a turning point within the data range so it can be plotted:
 
 ```{r}
 # SQUARED TERM
@@ -841,7 +866,7 @@ model_log <- model_log %>%
 #model_log <- model_log[-4, ]
 ```
 
-**Categorical data:** There are enough observations for my 3 categories so it can be plotted.
+**C) Categorical data:** There are enough observations for my 3 categories of `car` commuters so it can be plotted.
 
 ```{r}
 
@@ -879,7 +904,7 @@ m_cat <- lm(f_cat, data = tracts)
 #coef(m_cat)[c("ringCarMid", "ringCarHigh")]
 ```
 
-Final model result
+#### **Final model result**
 
 ```{r}
 summary(m_cat)
@@ -896,7 +921,7 @@ model_log <- model_log %>%
 #model_log <- model_log[-(5), ]
 ```
 
-Final model log:
+#### **Final model log:**
 
 ```{r}
 model_log
@@ -914,13 +939,9 @@ model_log
 
 ## Part 6: Your final model
 
-```{r}
-model_log
-```
-
 Combine the features and transformations that earned their place, **judged by CV RMSE, not p-values.**
 
-### *Since all 3 transformed variables helped, **we will add all 3 into m2***
+***Since all 3 transformed variables helped, we will add all 3 predictors into m2 to build the final model***
 
 Final model:
 
@@ -937,11 +958,13 @@ Final CV RMSE:
 
 ```{r}
 model_log <- model_log %>%
-  add_row(model = "final", added = "all above",
+  add_row(model = "final", added = "log + squared term + categorical",
           cv_rmse = cv_rmse(f_final, tracts),
           notes = "Final model misses by 4.95min. This is a 0.3min improvement from baseline")
 
-model_log
+library(DT)
+
+datatable(model_log, options = list(scrollX = TRUE))
 
 #model_log <- model_log[-6, ]
 ```
@@ -1046,7 +1069,9 @@ ggplot(tracts, aes(x = y_cv, y = abs(resid_final))) +
   theme_minimal()
 ```
 
-*So there is a slight upwards slope: we notice some tracts with high CVs also having a very big miss in the model. Indeed the biggest misses are in the least reliable tract. This could suggest that the model's failure in those "big miss" tracts are due to data unreliability.*
+*So there is a slight upwards slope where increase in CV is associated with an increase in residual values.*
+
+*We notice some tracts with high CVs also having a very big miss in the model. Indeed the biggest misses are in the least reliable tract. This could suggest that the model's failure in those "big miss" tracts are due to data unreliability.*
 
 ------------------------------------------------------------------------
 
@@ -1056,32 +1081,32 @@ Answer in prose, drawing on your model log (incorporate our words of the day for
 
 **(*see "Archive" for supporting R code)***
 
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Question                                                                                                                                                       | Answer                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-+================================================================================================================================================================+=====================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================+
-| 1.  **What helped, and what didn't?** Name the feature that lowered CV RMSE the most and the one that disappointed you most. Offer a reason for each.          | The introduction of spatial features in m3 was definitely the most helpful. I extracted the individual effects of `business_density_bypop + dist_station_mi + dist_ch_mi` below and have identified that **`dist_ch_mi` had the best impact** (in fact, `business_density_bypop` reduced its effects). It lowered the CV RMSE by 0.33 minutes. The squared term for distance to City Hall helps in explaining the commuting time: Generally, a higher distance from City Hall increases the commuting time because people are further from places of employment. which concentrates in Center City. |
-|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                                                                                                                                                | - The squared term helped more - at a very large distance from City Hall, people might choose a different workplace in the peripheries that is much easier to get to.                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                                                                                                                                                | I was most disappointed by `business_density_bypop` (see below in *Archive*) which worsened the RMSE by 0.02min. This suggests that business density in the tract has a negative predictive effect on commuting time, meaning that people are unlikely to work in the same (exact) place that they live in.                                                                                                                                                                                                                                                                                         |
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| 2.  **Read one coefficient twice.** Choose a variable in your final model. Give its β̂ reading and its ŷ reading in one sentence each.                          | **β̂ reading:** Holding all other predictors constant, an increase in median household income (per year) by \$10,000 is associated with a 0.07787 minute (approx. 4.7 seconds) decrease in commute time.                                                                                                                                                                                                                                                                                                                                                                                             |
-|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                                                                                                                                                | **ŷ reading:** For a census tract with a median household income of \$80,000, and average values across all other predictors, the model predicts an average commute time of 34 minutes.                                                                                                                                                                                                                                                                                                                                                                                                             |
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| 3.  **What's still missing?** Look at your final residual map. Name one thing about those places you'd want to measure next, and where you might get the data. | Honestly I am not too sure :((((                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                                                                                                                                                | The dark blue (negative) long residual in the middle of the map is Pennypack Trail, and one of the red residuals is Burholme Park. This probably means it contains very few housing units which means a very small sample size. This results in a high coefficient of variation meaning that the model might be predicting values accurately, but the actual values measured are innaccurate.                                                                                                                                                                                                       |
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| 4.  **How much of the remaining error might be uncertainty or statistical noise?** Use your last plot.                                                         | We do see some sort of correlation where tracts with high CVs also having a very big miss in the model. Indeed the biggest misses are in the least reliable tract. This could suggest that the model's failure in those "big miss" tracts are due to data unreliability.                                                                                                                                                                                                                                                                                                                            |
-|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                                                                                                                                                | But what is considered high CV and large miss?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                                                                                                                                                | 1.  We defined high CV as \> 40 earlier                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-|                                                                                                                                                                | 2.  The final CV RMSE is 4.95. We define a "large miss" as \> 2\*RMSE = 10.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                                                                                                                                                | The scatterplot of "miss" against CV shows there are only 4 points with those 2 conditions. Therefore there is not a lot of error that attributed to uncertainty.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Question                                                                                                                                                       | Answer                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
++================================================================================================================================================================+==============================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================+
+| 1.  **What helped, and what didn't?** Name the feature that lowered CV RMSE the most and the one that disappointed you most. Offer a reason for each.          | The introduction of spatial features in m3 was definitely the most helpful. I extracted the individual effects of `business_density_bypop + dist_station_mi + dist_ch_mi` below and have identified that **`dist_ch_mi` had the best impact** (in fact, `business_density_bypop` reduced nett effect in Part 3). **`dist_ch_mi`** lowered the CV RMSE by 0.33 minutes. The squared term for distance to City Hall helps in explaining the commuting time: Generally, a higher distance from City Hall increases the commuting time because people are further from places of employment. which concentrates in Center City.  |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|                                                                                                                                                                | - The squared term helped more - at a very large distance from City Hall, people might choose a different workplace in the peripheries that is much easier to get to.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|                                                                                                                                                                | I was most disappointed by **`business_density_bypop`** (see below in *Archive*) which worsened the RMSE by 0.02min. This suggests that business density in the tract has a negative predictive effect on commuting time, meaning that people are unlikely to work in the same (exact) place that they live in.                                                                                                                                                                                                                                                                                                              |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 2.  **Read one coefficient twice.** Choose a variable in your final model. Give its β̂ reading and its ŷ reading in one sentence each.                          | **β̂ reading:** Holding all other predictors constant, an increase in median household income (per year) by \$10,000 is associated with a 0.07787 minute (approx. 4.7 seconds) decrease in commute time.                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|                                                                                                                                                                | **ŷ reading:** For a census tract with a median household income of \$80,000, and average values across all other predictors, the model predicts an average commute time of 34 minutes.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 3.  **What's still missing?** Look at your final residual map. Name one thing about those places you'd want to measure next, and where you might get the data. | Honestly I am not too sure :((((                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|                                                                                                                                                                | The dark blue (negative) long residual in the middle of the map is Pennypack Trail, and one of the red residuals is Burholme Park. This probably means it contains very few housing units which means a very small sample size. This results in a high coefficient of variation meaning that the model might be predicting values accurately, but the actual values measured are innaccurate.                                                                                                                                                                                                                                |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 4.  **How much of the remaining error might be uncertainty or statistical noise?** Use your last plot.                                                         | We do see some sort of correlation where tracts with high CVs also having a very big miss in the model. Indeed the biggest misses are in the least reliable tract. This could suggest that the model's failure in those "big miss" tracts are due to data unreliability.                                                                                                                                                                                                                                                                                                                                                     |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|                                                                                                                                                                | But what is considered high CV and large miss?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|                                                                                                                                                                | 1.  We defined high CV as \> 40 earlier                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|                                                                                                                                                                | 2.  The final CV RMSE is 4.95. We define a "large miss" as \> 2\*RMSE = 10.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|                                                                                                                                                                | The scatterplot of "miss" against CV above shows there are only 4 observations fulfilling those 2 conditions. Therefore there is not a lot of error that attributed to uncertainty.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 ------------------------------------------------------------------------
 
@@ -1091,7 +1116,7 @@ Render this document to HTML and submit the link on Canvas by Friday, October 16
 
 ------------------------------------------------------------------------
 
-# Archive
+# Archive for Part 7: Reflection
 
 **Question 1**
 
@@ -1125,7 +1150,7 @@ spatial_rmse
 **Question 2**
 
 ```{r}
-# Helper function to get the most common factor level (mode)
+# extract most common factor level for ringCar
 get_mode <- function(x) {
   ux <- unique(na.omit(x))
   ux[which.max(tabulate(match(x, ux)))]
@@ -1148,7 +1173,7 @@ predict(m_final, newdata = sample_tract)
 
 **Question 3**
 
-```{r}Question 3}
+```{r}
 # adding basemap to residuals
 
 library(maptiles)

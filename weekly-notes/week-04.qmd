@@ -1,7 +1,8 @@
 ---
 title: "Week 4: Joining tables"
-description: " "
-date: 2026-09-11
+description: "and spatial dataframes"
+format: html
+date: 2026-09-12
 ---
 
 ## Dataframes
