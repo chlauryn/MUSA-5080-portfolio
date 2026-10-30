@@ -1,0 +1,15 @@
+{
+  "hash": "374a98e2176a123b5720a7d2b3b76919",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Week 7: New spatial features + Moran's I\"\nformat: html\ndate: 2026-10-16\n---\n\n# cleaning data\n\n- e.g. what counts as a \"market sale\"? sale_price \\>= 10,000?\n\n# new possibilities\n\n- Can draw buffer around a point –\\> st_join(crimes) to find out number of e.g. crimes within the buffer (e.g. 660 ft)\n\n  - mutate\n\n  - `violent_660ft (lengths(st_intersects(st_buffer(., 660), violent))`\n\n    - creates buffer of 660 around \".\", e.g. `sales`\n\n    - intersects violent into buffer\n\n    - counts number of \"violent\" inside buffer polygon\n\n- kNN –\\> k-nearest neighbours\n\n  - mutate:\n\n  - `violent_knn5 = sapply(st_nn(., violent, k = 5, returnDist = TRUE, progress = FALSE)$dist, mean)`\n\n    - st_nn() to calculate distance of each \".\" (sale) to the nearest `k` violent crimes\n\n    - calculate mean distance\n\n# ggplot\n\n- use `oob = scales:squish` inside `scale_color_gradient2()` to stop outliers from washing out the map.\n\n# global moran's I\n\n- values range from -1 to 1\n\n- -1 = negative spatial autocorrelation, neighbours are not related to each other\n\n**how to calculate spatial lag?**\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# coords <- st_coordinates(sales)\n# w_knn  <- nb2listw(knn2nb(knearneigh(coords, k = 5)), style = \"W\")\n\n# sales$resid_lag <- lag.listw(w_knn, sales$resid)\n```\n:::\n\n\n- spatial lag = avg value of all 5 of the neighbours\n\n- nb2listw() is from the spdep package to get the **SPATIAL WEIGHTS MATRIX**→ use this to define spatial relationships → then standardise the variables before analysis\n\n- style = \"w\" means each of the neighbours receive equal weight independent of its value/frequency etc\n\ncan make spatial lag vs actual value scatterplot\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# ggplot(sales, aes(resid, resid_lag)) +\n#   geom_point(alpha = 0.15, size = 0.6) +\n#   geom_smooth(method = \"lm\", se = FALSE, color = \"#b2182b\") +\n#   coord_cartesian(xlim = c(-3e5, 3e5), ylim = c(-2e5, 2e5)) +\n#   labs(x = \"My residual\", y = \"Average of my 5 neighbors' residuals\")\n```\n:::\n\n\nthen, generate pseudo p-value using monte carlo simulation\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# mc <- moran.mc(sales$resid, w_knn, nsim = 499)\n# mc$statistic\n```\n:::\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

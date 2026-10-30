@@ -1,0 +1,56 @@
+---
+title: "Week 8: LISA"
+format: html
+date: 2026-10-23
+---
+
+Apply weights matrix by determining what counts as a neighbor. What are the methods?
+
+1.  Contiguity: Rook vs Queen: Queen includes diagonal
+
+Local Moran's I is one house at a timee. will be standardised. Calculate by
+
+1.  Multiply value \* avg of neighbor's value (aka spatial lag)
+
+LISA interpretation (ME-NEIGHBOURS)
+
++-----------------------------------------------------------------------------+----------------------------+
+|                                                                             |                            |
++=============================================================================+============================+
+| **HH**                                                                      | **HL**                     |
+|                                                                             |                            |
+| High value, High neighbours (aka mean value of neighbours, aka spatial lag) | High value, Low neighbours |
+|                                                                             |                            |
+| Pocket of underprediction                                                   |                            |
++-----------------------------------------------------------------------------+----------------------------+
+| **LH**                                                                      | **LL**                     |
+|                                                                             |                            |
+| Low value, High neighbours                                                  | Low value, Low neighbours  |
+|                                                                             |                            |
+|                                                                             | Pocket of overprediction   |
++-----------------------------------------------------------------------------+----------------------------+
+
+- HH and LL clusters – hotspot and low spots → extract and put on a map
+
+- HL and LH are outliers. 
+
+Code
+
+1.  nb2listw(style = "W")
+
+    1.  W = all neighbours get equl weight regardless of value/frequency
+
+2.  Define LISA function to get HH, HL, LL, LH
+
+    1.  perm = permutations, to randomise values all over the map
+    2.  lag = spatial lag from avg of neighbours
+    3.  p = significance value
+    4.  z = spatial error. (residual - mean(residual))
+
+    - If z\>0 and lag\>0:: HH
+
+    - If z\>0 and lag\<0: HL
+
+    - If z\<0 and lag\<0: LL
+
+    - If z\<0 and lag\>0: LH

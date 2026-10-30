@@ -1,0 +1,75 @@
+---
+title: "Week 7: New spatial features + Moran's I"
+format: html
+date: 2026-10-16
+---
+
+# cleaning data
+
+- e.g. what counts as a "market sale"? sale_price \>= 10,000?
+
+# new possibilities
+
+- Can draw buffer around a point –\> st_join(crimes) to find out number of e.g. crimes within the buffer (e.g. 660 ft)
+
+  - mutate
+
+  - `violent_660ft (lengths(st_intersects(st_buffer(., 660), violent))`
+
+    - creates buffer of 660 around ".", e.g. `sales`
+
+    - intersects violent into buffer
+
+    - counts number of "violent" inside buffer polygon
+
+- kNN –\> k-nearest neighbours
+
+  - mutate:
+
+  - `violent_knn5 = sapply(st_nn(., violent, k = 5, returnDist = TRUE, progress = FALSE)$dist, mean)`
+
+    - st_nn() to calculate distance of each "." (sale) to the nearest `k` violent crimes
+
+    - calculate mean distance
+
+# ggplot
+
+- use `oob = scales:squish` inside `scale_color_gradient2()` to stop outliers from washing out the map.
+
+# global moran's I
+
+- values range from -1 to 1
+
+- -1 = negative spatial autocorrelation, neighbours are not related to each other
+
+**how to calculate spatial lag?**
+
+```{r}
+# coords <- st_coordinates(sales)
+# w_knn  <- nb2listw(knn2nb(knearneigh(coords, k = 5)), style = "W")
+
+# sales$resid_lag <- lag.listw(w_knn, sales$resid)
+```
+
+- spatial lag = avg value of all 5 of the neighbours
+
+- nb2listw() is from the spdep package to get the **SPATIAL WEIGHTS MATRIX**→ use this to define spatial relationships → then standardise the variables before analysis
+
+- style = "w" means each of the neighbours receive equal weight independent of its value/frequency etc
+
+can make spatial lag vs actual value scatterplot
+
+```{r}
+# ggplot(sales, aes(resid, resid_lag)) +
+#   geom_point(alpha = 0.15, size = 0.6) +
+#   geom_smooth(method = "lm", se = FALSE, color = "#b2182b") +
+#   coord_cartesian(xlim = c(-3e5, 3e5), ylim = c(-2e5, 2e5)) +
+#   labs(x = "My residual", y = "Average of my 5 neighbors' residuals")
+```
+
+then, generate pseudo p-value using monte carlo simulation
+
+```{r}
+# mc <- moran.mc(sales$resid, w_knn, nsim = 499)
+# mc$statistic
+```

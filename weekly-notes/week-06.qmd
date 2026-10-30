@@ -6,21 +6,21 @@ date: 2026-10-13
 
 Goal: Create new variables to fit into a linear regression
 
-+---------------+------------------------------------------+------------------------------------------+
-| New variable  | How does it change the y-hat?            | How does it change the beta-hat?         |
-|               |                                          |                                          |
-|               | (The prediction)                         | (The coefficients)                       |
-+===============+==========================================+==========================================+
-| Logs          | Better fit on skewed data                | Reads in percentages, NOT UNITS          |
-+---------------+------------------------------------------+------------------------------------------+
-| Squared terms | Line can bend                            | No meaning for individual coefficients   |
-+---------------+------------------------------------------+------------------------------------------+
-| Categories    | Captures jumps and non-smooth patterns   | Compare coefficient to a reference group |
-+---------------+------------------------------------------+------------------------------------------+
-| Interactions  | Slops can differ by group                | Effect dependents on which group         |
-+---------------+------------------------------------------+------------------------------------------+
-| Fixed effects | Absorbs everything about an unseen place | Identifies WHERE, not WHY                |
-+---------------+------------------------------------------+------------------------------------------+
++---------------+------------------------------------------+------------------------------------------+---------------------------------+
+| New variable  | How does it change the y-hat?            | How does it change the beta-hat?         | Equation                        |
+|               |                                          |                                          |                                 |
+|               | (The prediction)                         | (The coefficients)                       |                                 |
++===============+==========================================+==========================================+=================================+
+| Logs          | Better fit on skewed data                | Reads in percentages, NOT UNITS          | `+log(x)`                       |
++---------------+------------------------------------------+------------------------------------------+---------------------------------+
+| Squared terms | Line can bend                            | No meaning for individual coefficients   | `+x + I(x^2)`                   |
++---------------+------------------------------------------+------------------------------------------+---------------------------------+
+| Categories    | Captures jumps and non-smooth patterns   | Compare coefficient to a reference group | `+x` (where x is a factor)      |
++---------------+------------------------------------------+------------------------------------------+---------------------------------+
+| Interactions  | Slops can differ by group                | Effect dependents on which group         | `+(x * z)`, where z is a factor |
++---------------+------------------------------------------+------------------------------------------+---------------------------------+
+| Fixed effects | Absorbs everything about an unseen place | Identifies WHERE, not WHY                | `+x` (where x is a category)    |
++---------------+------------------------------------------+------------------------------------------+---------------------------------+
 
 ::: callout-important
 \^all these models are judged by whether the RMSE increases for cross-validation
@@ -192,17 +192,12 @@ coef(m_logy)
 
 **The four combinations**
 
-+----------------------+----------------------+------------------------------------------------+
-| Model                | Formula              | Coefficient means...                           |
-+======================+======================+================================================+
-| level-level          | y \~ x               | +1 unit of X = +β units of Y                   |
-+----------------------+----------------------+------------------------------------------------+
-| level-log            | y \~ log(x)          | +1 unit of X = +β/100 units of Y               |
-+----------------------+----------------------+------------------------------------------------+
-| log-level            | log(y) \~ x          | +1 unit of X roughly = 100\*β% **change** in Y |
-+----------------------+----------------------+------------------------------------------------+
-| log-log              | log(y) \~ log(x)     | +1 unit of X roughly = +β% **change** in Y     |
-+----------------------+----------------------+------------------------------------------------+
+| Model | Formula | Coefficient means... |
+|----|----|----|
+| level-level | y \~ x | +1 unit of X = +β units of Y |
+| level-log | y \~ log(x) | +1 unit of X = +β/100 units of Y |
+| log-level | log(y) \~ x | +1 unit of X roughly = 100\*β% **change** in Y |
+| log-log | log(y) \~ log(x) | +1 unit of X roughly = +β% **change** in Y |
 
 The approximation for "roughly =" gets worse as β increases
 
@@ -410,6 +405,8 @@ tracts %>% st_drop_geometry() %>% count(district, sort = TRUE)
 
 **COUNTING will show issues.** like e.g. Lower South only has 1 which is not enough observations for regression –\> need to fix (later)
 
+- for k-folds, need at least k number of observations in each category
+
 ### E.1) Factoring labels
 
 - need to `factor()` to order the categories so that the model knows how to order them.
@@ -521,19 +518,13 @@ A fixed effect is **memorization of a place**. If a district never shows up in a
 
 ## Fixed effects vs. spatial features
 
-+----------------------------------------------+--------------------------------------------------------------+
-| Fixed effects                                | Spatial features (Week 4, Oct 16)                            |
-+==============================================+==============================================================+
+| Fixed effects | Spatial features (Week 4, Oct 16) |
+|----|----|
 | “Tracts in this district are more expensive” | “Tracts near transit / parks / low crime are more expensive” |
-+----------------------------------------------+--------------------------------------------------------------+
-| Captures what you didn’t measure             | Only captures what you did measure                           |
-+----------------------------------------------+--------------------------------------------------------------+
-| Can’t predict a new place                    | Works anywhere you can compute the feature                   |
-+----------------------------------------------+--------------------------------------------------------------+
-| Boundary is someone else’s choice            | You choose the scale                                         |
-+----------------------------------------------+--------------------------------------------------------------+
-| Tells you **where**                          | Tells you **why** (or at least *what*)                       |
-+----------------------------------------------+--------------------------------------------------------------+
+| Captures what you didn’t measure | Only captures what you did measure |
+| Can’t predict a new place | Works anywhere you can compute the feature |
+| Boundary is someone else’s choice | You choose the scale |
+| Tells you **where** | Tells you **why** (or at least *what*) |
 
 They aren’t rivals. FE catch what your features miss, and your features explain what the FE were hiding. On Oct 16 we’ll build features from **neighbors** (kNN) and watch how much of the district effect they take over.
 

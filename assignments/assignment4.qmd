@@ -106,19 +106,13 @@ Pick a **tract-level ACS variable for Philadelphia** that matters for policy. Tw
 
 Some ideas if you're stuck:
 
-+----------------------------------+--------------------------+-------------------------+
-| Outcome                          | Why an agency might care | ACS table               |
-+==================================+==========================+=========================+
-| \% of households with no vehicle | Transit planning         | B08201 or B25044        |
-+----------------------------------+--------------------------+-------------------------+
-| Mean travel time to work         | Access to jobs           | B08013_001 ÷ B08303_001 |
-+----------------------------------+--------------------------+-------------------------+
-| \% of people below poverty       | Targeting services       | B17001                  |
-+----------------------------------+--------------------------+-------------------------+
-| \% of housing units vacant       | Housing and blight       | B25002                  |
-+----------------------------------+--------------------------+-------------------------+
-| \% of households overcrowded     | Housing conditions       | B25014                  |
-+----------------------------------+--------------------------+-------------------------+
+| Outcome | Why an agency might care | ACS table |
+|----|----|----|
+| \% of households with no vehicle | Transit planning | B08201 or B25044 |
+| Mean travel time to work | Access to jobs | B08013_001 ÷ B08303_001 |
+| \% of people below poverty | Targeting services | B17001 |
+| \% of housing units vacant | Housing and blight | B25002 |
+| \% of households overcrowded | Housing conditions | B25014 |
 
 Use `load_variables(2023, "acs5")` to browse and find exact variable codes.
 
@@ -376,9 +370,9 @@ ggplot(tracts) +
 
 **Answer:** Where do the residuals cluster? What might those places have in common that your model doesn't know about? **Use this answer to choose your open data layers in Part 3.**
 
-*The residuals cluster together indicating that the model is not doing uniformly well at all areas of Philadelphia.*
+*Not much of a spatial pattern that is observable, although generally Center City has more negative residuals. The further from Central, the more positive the residuals become.*
 
-*Generally Center City has more negative residuals. The further from Central, the more positive the residuals become. This indicates that at Center City, the actual observed travel time is less than what the model predicted. This is likely true because at Center City, residents are closer to places of employment which means their distance to work is shorter.*
+*This indicates that at Center City, the actual observed travel time is less than what the model predicted. This is likely true because at Center City, residents are closer to places of employment which means their distance to work is shorter.*
 
 ------------------------------------------------------------------------
 
@@ -457,17 +451,12 @@ nrow(burglary)
 
 These tables were available on Carto as of this fall. If a query fails, check the dataset's OpenDataPhilly page for the current table name.
 
-+------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
-| Data             | Table                                                     | Filter on                            | Notes                                          |
-+==================+===========================================================+======================================+================================================+
-| Crime incidents  | `incidents_part1_part2`                                   | `dispatch_date`, `text_general_code` | Pick specific offense types                    |
-+------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
-| Shooting victims | `shootings`                                               | `date_`                              | Small enough to pull several years             |
-+------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
-| 311 requests     | `public_cases_fc`                                         | `requested_datetime`, `service_name` | Use the count query above to see service names |
-+------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
-| Indego stations  | *(not Carto)* `https://www.rideindego.com/stations/json/` | —                                    | The Week 4 feed                                |
-+------------------+-----------------------------------------------------------+--------------------------------------+------------------------------------------------+
+| Data | Table | Filter on | Notes |
+|----|----|----|----|
+| Crime incidents | `incidents_part1_part2` | `dispatch_date`, `text_general_code` | Pick specific offense types |
+| Shooting victims | `shootings` | `date_` | Small enough to pull several years |
+| 311 requests | `public_cases_fc` | `requested_datetime`, `service_name` | Use the count query above to see service names |
+| Indego stations | *(not Carto)* `https://www.rideindego.com/stations/json/` | — | The Week 4 feed |
 
 ::: callout-note
 ## Notes: Understanding Carto table names
