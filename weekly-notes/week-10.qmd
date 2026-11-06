@@ -1,0 +1,73 @@
+---
+title: "Week 10: Logistic regression"
+format: html
+date: 2026-11-06
+---
+
+Logistic regression has 2 components 1. Link function: Map outcome to predictors without breaking the boundary rules (0 to 1) 2. Inverse link function: Map predictors to outcome to turn a mathematical score into real-world predictions
+
++----------+------------------+---------------+---------------+------------------+
+| Model    | Random component | Bound by      | Link function | Inverse link     |
++==========+==================+===============+===============+==================+
+| Logistic | Binomial (1/0)   | P e (1, 0)    | Logit link    | Sigmoid function |
+|          |                  |               |               |                  |
+|          |                  |               | ln(p/(1-p))   |                  |
++----------+------------------+---------------+---------------+------------------+
+| Poisson  | POisson          | (0, infinity) | Log link      | .....            |
+|          |                  |               |               |                  |
+|          |                  |               | log(miu)      |                  |
++----------+------------------+---------------+---------------+------------------+
+
+The logistic regression model creates beta values based on the log-odds, ln(p/(1-p)).
+
+- we need to convert back to readable coefficients
+
+# Geographic cross-validation
+
+Random k-folds vs Leave One District Out
+
+- k-folds: will be random stuff. but due to spatial autocorrelation, will create spatial leakage where you know stuff about nearby cells –\> will get inflated sense of how well the model will do on truly unseen data, bc of the sptial spillover effect
+
+- LODO –\> comes up with geographically segmented training and testing dataset –\> won't have spatial spillover effect.
+
+# Odds vs Probability
+
+- Odds: How many more times likely is it to happen than it doesn't?
+
+  - $p/(1-p)$
+
+  - if p = 0.5 (50% chance of happening), odds = 1. Outcome is 1x more likely to happen than it doesn't –\> even odds
+
+  - p = 0.5 and odds = 1 is the baseline
+
+  - p \< 0.5, odds \< 1 (positive number)
+
+  - p \> 0.5, odds \> 1
+
+probability –\> odds –\> log-odds –\> needed to make linear prediction
+
+\$log(p/(1-p)) = beta + betax + betax2.... \$
+
+- then solve for p –\> creates a sigmoid function
+
+Output of logistic regression
+
+- 1 log-odds
+
+- odds ratio (if odds ratio \> 1, p \> 0.5)
+
+- the constant is on the ODDS
+
+add 1 prior to come up with probability that they conduct a crime agauin
+
+- aka increase prioir arrest to 1, the odds will go up 17%, but the probabilities DONT move the same.
+
+# confusion matrix
+
+how to decide threshold? which type of error to prioritise to remove?
+
+|                     |                   |                   |
+|---------------------|-------------------|-------------------|
+|                     | Actually positive | Actually negative |
+| **Tested positive** | True positive     | False positive    |
+| Tested negative     | False negative    | True negative     |

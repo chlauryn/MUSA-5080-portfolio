@@ -1,0 +1,29 @@
+---
+title: "Week 9: Crime data issues"
+format: html
+date: 2026-10-30
+---
+
+# predicting burglaries
+1. point data of burglaries
+2. aggregate by 50ft matrix (fishnet)
+3. burglaries per cell --> becomes a poisson distribution, bc bounded at zero + many many zero values
+
+how to fix this distribution?
+1. option 1: log y (becomes log y + 1 because many zero values) --> lying
+2. option 2: POISSON DISTRIBUTION
+
+reading poisson coefficient
+- exp(beta) = multiplicative change in expected count per one unit change in x
+- exp(0.20) = 1.22. each 1 unit increase in x leads to 22% more burglaries
+
+assumptions
+1. mean = variance (hence cannot have too many zeroes --> overdispersion --> in that case, need negative binomial)
+
+# predicting crime
+1. carto get to get 311 calls
+2. make hotspots using LISA map
+3. calculate distance to nearest hotspot
+4. run OLS vs poisson 
+5. pois <- glm(f1, family = "poisson", data = fishnet) --> GLM is Generalised Linear Model
+6. compare map of predicted crime (from poisson model) to the actual data KDE map
