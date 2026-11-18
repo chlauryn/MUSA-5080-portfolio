@@ -2,6 +2,9 @@ project:
   type: website
   output-dir: docs
   execute-dir: project
+  render:
+    - "*.qmd"
+    - "!assignments/assign-5.qmd"
   resources:
     - "data/img/portfolio.pdf"
 

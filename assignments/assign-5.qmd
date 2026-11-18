@@ -35,14 +35,10 @@ yours to build.
 
 ### A real test
 
-+---------------------+-----------------------------------------------------+
-| File                | What's in it                                        |
-+=====================+=====================================================+
-| `chicago_train.csv` | About 80% of the houses, **with** sale prices       |
-+---------------------+-----------------------------------------------------+
-| `chicago_test.csv`  | The other 20%, **without** sale prices. You predict |
-|                     | them; we score you.                                 |
-+---------------------+-----------------------------------------------------+
+| File | What's in it |
+|----|----|
+| `chicago_train.csv` | About 80% of the houses, **with** sale prices |
+| `chicago_test.csv` | The other 20%, **without** sale prices. You predict them; we score you. |
 
 The test houses were held out by house, not by sale, so a house that
 sold twice is entirely on one side. Your CV RMSE is your estimate. Your
@@ -85,24 +81,13 @@ No features built from other houses' sale prices.
 
 ### Please include in your final rendered qmd for this assignment:
 
-+-----------------+--------------------------------------------------------+
-|                 |                                                        |
-+=================+========================================================+
-| **Model log**   | Every model you tried, in order, with CV RMSE and      |
-|                 | Moran's I. Each row has a note saying why you tried    |
-|                 | it.                                                    |
-+-----------------+--------------------------------------------------------+
-| **Features**    | Incorporate the feature engineering tricks - including |
-|                 | the spatial ones covered these past few weeks.         |
-+-----------------+--------------------------------------------------------+
-| **Diagnostics** | Residual maps for your baseline and final model, and   |
-|                 | what changed.                                          |
-+-----------------+--------------------------------------------------------+
-| **Error         | Where your final model fails worst, and whose homes it |
-| analysis**      | over-values (Part 4).                                  |
-+-----------------+--------------------------------------------------------+
-| **Reasoning**   | Choices justified by evidence from your own analysis.  |
-+-----------------+--------------------------------------------------------+
+|  |  |
+|----|----|
+| **Model log** | Every model you tried, in order, with CV RMSE and Moran's I. Each row has a note saying why you tried it. |
+| **Features** | Incorporate the feature engineering tricks - including the spatial ones covered these past few weeks. |
+| **Diagnostics** | Residual maps for your baseline and final model, and what changed. |
+| **Error analysis** | Where your final model fails worst, and whose homes it over-values (Part 4). |
+| **Reasoning** | Choices justified by evidence from your own analysis. |
 
 ------------------------------------------------------------------------
 
@@ -2718,46 +2703,46 @@ features to see their impact on our model.
 
 ### Who did what
 
-+------------+----------------------------------------------------------------+
-|            |                                                                |
-+============+================================================================+
-| # Name     | # Main contribution                                            |
-|            |                                                                |
-| Lauryn     | - cleaning test and train dataset                              |
-|            |                                                                |
-|            | - baseline predictors + crime: data pulling, wrangling,        |
-|            |   building model and testing transformations                   |
-|            |                                                                |
-|            | - part 3,4,5,6 writing                                         |
-+------------+----------------------------------------------------------------+
-| Gil        | - predictors: construction_activity, downtown_drive_time,      |
-|            |   distance to work                                             |
-|            |                                                                |
-|            | <!-- -->                                                       |
-|            |                                                                |
-|            | - experimented with outlier filtering in training data         |
-+------------+----------------------------------------------------------------+
-| Carenna    | - researching the training dataset to better understand the    |
-|            |   scope                                                        |
-|            | - variables involving census tracts using tidy census          |
-|            | - troubleshooting the merging of everyone's work into this     |
-|            |   document                                                     |
-|            | - part 3,4,5,6 writing                                         |
-+------------+----------------------------------------------------------------+
-| Cindy      | - school data features: data pulling and transformation,       |
-|            |   merging multiple datasets to get usable school performance   |
-|            |   data                                                         |
-|            |                                                                |
-|            |   - distance variables (nearest schools, distance to city      |
-|            |     hall)                                                      |
-|            |                                                                |
-|            | - Moran's I functionality                                      |
-|            |                                                                |
-|            | - troubleshooting the merging of everyone's work into this     |
-|            |   document                                                     |
-|            |                                                                |
-|            | - part 3,4,5,6 writing                                         |
-+------------+----------------------------------------------------------------+
++---------+------------------------------------------------------------+
+|         |                                                            |
++=========+============================================================+
+| # Name  | # Main contribution                                        |
+|         |                                                            |
+| Lauryn  | - cleaning test and train dataset                          |
+|         |                                                            |
+|         | - baseline predictors + crime: data pulling, wrangling,    |
+|         |   building model and testing transformations               |
+|         |                                                            |
+|         | - part 3,4,5,6 writing                                     |
++---------+------------------------------------------------------------+
+| Gil     | - predictors: construction_activity, downtown_drive_time,  |
+|         |   distance to work                                         |
+|         |                                                            |
+|         | <!-- -->                                                   |
+|         |                                                            |
+|         | - experimented with outlier filtering in training data     |
++---------+------------------------------------------------------------+
+| Carenna | - researching the training dataset to better understand    |
+|         |   the scope                                                |
+|         | - variables involving census tracts using tidy census      |
+|         | - troubleshooting the merging of everyone's work into this |
+|         |   document                                                 |
+|         | - part 3,4,5,6 writing                                     |
++---------+------------------------------------------------------------+
+| Cindy   | - school data features: data pulling and transformation,   |
+|         |   merging multiple datasets to get usable school           |
+|         |   performance data                                         |
+|         |                                                            |
+|         |   - distance variables (nearest schools, distance to city  |
+|         |     hall)                                                  |
+|         |                                                            |
+|         | - Moran's I functionality                                  |
+|         |                                                            |
+|         | - troubleshooting the merging of everyone's work into this |
+|         |   document                                                 |
+|         |                                                            |
+|         | - part 3,4,5,6 writing                                     |
++---------+------------------------------------------------------------+
 
 ### AI Team Statement
 

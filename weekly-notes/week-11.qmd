@@ -1,0 +1,44 @@
+---
+title: "Week 11: Logistic regression and ROC curve"
+format: html
+date: 2026-11-13
+---
+
+# Why and How to run a logistic regression again?
+
+1.  Need to fit to a linear regression, which values run from -infinity to infinity
+2.  Odds ratio is from 0 to infinity. Need to transform to log(odds) to stretch range from -infinity to infinity.
+3.  Log(odds) becomes the dependent variable, $y$, in the linear regression
+4.  Get a probability that the event happens from the log(odds), where probability = $e^y/(1+e^y)$
+
+# The cut-off value affects:
+
+- Sensitivity = True Pos / All positive people = Proportion of true events that the model accurately flagged.
+
+- Specificity = True neg / All negative people = Proportion of false events that the model accurately (did not) fag.
+
+- Accuracy
+
+  - Accuracy is a farce because it does not reflect the sensitivity and specificity (in some situations might want to prioritise one over the other)
+
+# ROC curve
+
+Plot TPR against FPR (this is **NOT** sensitivity and specificity)
+
+The different points plotted reflect the different cut-off values chosen and hence its confusion matrix and hence its respective TPR against FPR
+
+- TPR = TP / (TP + FN)
+
+- FPR = FP / (FP + TN)
+
+The curve will go through:
+
+- Top right (1,1): When you flag everything as positive
+
+- Bottom left (0,0): When you don't flag anything
+
+- Top left (1,0): PERFECTION! No false alarm! But this is probably overfitting if it's perfect.
+
+Goal is to maximise the Area under ROC curve
+
+- Area ranges from 0.5 to 1 (1 is overfitting, 0.5 is random coin toss –\> exact diagonal line)
