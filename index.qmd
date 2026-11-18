@@ -8,7 +8,6 @@ css: styles.css
 
 # Lauryn Chan {#welcome}
 
-<!-- CHANGE THIS: replace with your own name above -->
 ::: {.columns}
 
 ::: {.column width="30%"}
