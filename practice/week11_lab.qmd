@@ -20,7 +20,7 @@ This lab is **ungraded**. It walks through everything from the last two weeks, o
 - **Checkpoints** give the numbers you should get. If yours don't match, stop and fix it before moving on.
 - A5 asks you to do all of this again on new data, with much less help. Anything you understand here, you'll be able to do there.
 
----
+------------------------------------------------------------------------
 
 ## Step 0: Packages
 
@@ -29,7 +29,7 @@ library(tidyverse)
 library(pROC)    # for ROC curves and AUC. Install once with install.packages("pROC")
 ```
 
----
+------------------------------------------------------------------------
 
 ## Step 1: Load the data
 
@@ -47,7 +47,7 @@ compas_raw <- read_csv(url, name_repair = make.unique)
 glimpse(compas_raw)
 ```
 
----
+------------------------------------------------------------------------
 
 ## Step 2: Clean it
 
@@ -77,13 +77,13 @@ nrow(compas)
 mean(compas$two_year_recid)
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 1
+
 **6,172 people.** **0.455**, so about 46% were rearrested within two years.
 :::
 
-
----
+------------------------------------------------------------------------
 
 ## Step 3: Fit the model
 
@@ -103,15 +103,16 @@ The numbers in the `Estimate` column are on the **log-odds** scale. Nobody think
 exp(coef(recid_fit))
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 2
-| term | estimate (log-odds) | odds ratio |
-|---|---|---|
-| age | −0.044 | 0.96 |
-| priors_count | 0.160 | 1.17 |
-| male | 0.328 | 1.39 |
-| felony | 0.229 | 1.26 |
-| juv_total | 0.135 | 1.14 |
+
+| term         | estimate (log-odds) | odds ratio |
+|--------------|---------------------|------------|
+| age          | −0.044              | 0.96       |
+| priors_count | 0.160               | 1.17       |
+| male         | 0.328               | 1.39       |
+| felony       | 0.229               | 1.26       |
+| juv_total    | 0.135               | 1.14       |
 :::
 
 **Reading them.** Every odds ratio is a comparison, with everything else in the model held the same:
@@ -120,9 +121,9 @@ exp(coef(recid_fit))
 - **age, 0.96:** compared to someone one year younger, the odds are 4% lower.
 - **male, 1.39:** compared to a woman with the same age, priors, charge and juvenile record, the odds are 39% higher.
 
->  **Write it yourself:** read the `felony` odds ratio in one sentence. Start with *"Compared to…"*
+> **Write it yourself:** read the `felony` odds ratio in one sentence. Start with *"Compared to…"*
 
----
+------------------------------------------------------------------------
 
 ## Step 4: Predict probabilities
 
@@ -137,7 +138,7 @@ compas %>%
 
 Every person now has a probability between 0 and 1. Now we need to choose our threshold to assign everyone a 0 or a 1.
 
----
+------------------------------------------------------------------------
 
 ## Step 5: Pick a cutoff, build a confusion matrix
 
@@ -168,10 +169,10 @@ compas %>%
   )
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 3
-Confusion matrix: TP = 1,551, FP = 713, FN = 1,258, TN = 2,650.
-Sensitivity **0.55**, specificity **0.79**, accuracy **0.68**.
+
+Confusion matrix: TP = 1,551, FP = 713, FN = 1,258, TN = 2,650. Sensitivity **0.55**, specificity **0.79**, accuracy **0.68**.
 :::
 
 ### Try other cutoffs
@@ -197,18 +198,19 @@ bind_rows(
 )
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 4
+
 | threshold | sensitivity | specificity |
-|---|---|---|
-| 0.3 | 0.90 | 0.31 |
-| 0.5 | 0.55 | 0.79 |
-| 0.7 | 0.20 | 0.96 |
+|-----------|-------------|-------------|
+| 0.3       | 0.90        | 0.31        |
+| 0.5       | 0.55        | 0.79        |
+| 0.7       | 0.20        | 0.96        |
 :::
 
 Same pattern as the quarantine cards: lower the cutoff and you catch more people, and you also flag more people who weren't rearrested.
 
----
+------------------------------------------------------------------------
 
 ## Step 6: Every cutoff at once, with ROC and AUC
 
@@ -241,14 +243,15 @@ ggroc(list(`Our model` = roc_obj, `COMPAS` = roc_compas), legacy.axes = TRUE) +
   theme_minimal()
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 5
+
 Our model: AUC **0.73**. COMPAS: AUC **0.71**.
 :::
 
 Your five-variable model ranks people about as well as the commercial tool.
 
----
+------------------------------------------------------------------------
 
 ## Step 7: Who gets the errors?
 
@@ -273,16 +276,16 @@ compas %>%
   )
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 6
-| | n | base rate | FPR | FNR | accuracy |
-|---|---|---|---|---|---|
-| African-American | 3,175 | 0.52 | **0.29** | 0.34 | 0.68 |
-| Caucasian | 2,103 | 0.39 | **0.14** | **0.60** | 0.68 |
+
+|                  | n     | base rate | FPR      | FNR      | accuracy |
+|------------------|-------|-----------|----------|----------|----------|
+| African-American | 3,175 | 0.52      | **0.29** | 0.34     | 0.68     |
+| Caucasian        | 2,103 | 0.39      | **0.14** | **0.60** | 0.68     |
 :::
 
-
----
+------------------------------------------------------------------------
 
 ## Step 8: How did race get in?
 
@@ -298,8 +301,9 @@ compas %>%
   )
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 7
+
 African-American: priors **4.2**, age **32**. Caucasian: priors **2.3**, age **38**.
 :::
 
@@ -328,8 +332,9 @@ compas %>%
   summarize(fpr = sum(flag == 1 & two_year_recid == 0) / sum(two_year_recid == 0))
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 8
+
 AUC stays at **0.73**. FPR: **0.33** for Black defendants, **0.12** for white defendants. The gap gets slightly wider, but not by much.
 :::
 
@@ -337,7 +342,7 @@ Leaving race out bought very little, because priors and age were already carryin
 
 > ✏️ **Try it yourself:** refit the race-blind model **without `priors_count`**. Does the gap close? What happens to the AUC? (You should see about 0.65, with FPR 0.31 vs. 0.21.)
 
----
+------------------------------------------------------------------------
 
 ## Step 9: Is the model calibrated?
 
@@ -353,13 +358,14 @@ compas %>%
   pivot_wider(names_from = race, values_from = actual_rate)
 ```
 
-::: {.callout-tip}
+::: callout-tip
 ## Checkpoint 9
-For the middle bins, the two columns are close. For example, [0.4, 0.5) is **0.44** vs. **0.42**, and [0.6, 0.7) is **0.73** vs. **0.76**.
+
+For the middle bins, the two columns are close. For example, \[0.4, 0.5) is **0.44** vs. **0.42**, and \[0.6, 0.7) is **0.73** vs. **0.76**.
 :::
 
-The same predicted probability means about the same chance of rearrest for both groups. **And** the error rates in Step 7 were very different. 
+The same predicted probability means about the same chance of rearrest for both groups. **And** the error rates in Step 7 were very different.
 
----
+------------------------------------------------------------------------
 
 ok now go forth and do the assignment!

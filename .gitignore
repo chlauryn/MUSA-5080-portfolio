@@ -2,17 +2,14 @@
 .Renviron
 .env
 *.pem
-
 # --- R session junk --------------------------------------------------
 .Rhistory
 .RData
 .Rproj.user/
 .Ruserdata
-
 # --- OS junk ---------------------------------------------------------
 .DS_Store
 Thumbs.db
-
 # ---------------------------------------------------------------------
 # DO NOT add docs/ to this file.
 # GitHub Pages serves docs/ — ignoring it means your site never updates.
@@ -22,7 +19,6 @@ Thumbs.db
 # your published site shows stale output that won't match your local copy.
 # ---------------------------------------------------------------------
 .positai
-
 /.quarto/
-
 **/*.quarto_ipynb
+r5r-log.log

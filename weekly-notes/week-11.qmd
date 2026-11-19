@@ -15,7 +15,7 @@ date: 2026-11-13
 
 - Sensitivity = True Pos / All positive people = Proportion of true events that the model accurately flagged.
 
-- Specificity = True neg / All negative people = Proportion of false events that the model accurately (did not) fag.
+- Specificity = True neg / All negative people = Proportion of false events that the model accurately (did not) flag.
 
 - Accuracy
 

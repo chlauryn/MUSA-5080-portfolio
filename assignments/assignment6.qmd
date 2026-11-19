@@ -98,7 +98,7 @@ mean(test$recid)
 
 - 57.8% of people in train and 57.4% of people in test were rearrested within three years.
 
----
+------------------------------------------------------------------------
 
 **1.2** Look at `Gang_Affiliated`. How many values are missing, and who are they? (Hint: cross-tabulate it with `Gender`.) What would happen to your sample if you added this variable to a model without handling the missing values?
 
