@@ -602,7 +602,3 @@ Write to a deputy commissioner, not to a statistician. No code, no jargon you ha
 # Optional challenge (no extra points. just extra muscles.)
 
 `Supervision_Risk_Score_First` is the score Georgia's existing risk tool assigned at the start of supervision. Treat a score of 7 or higher as "high risk" and compute its false positive rates by race on the test set. Does the state's current tool look better or worse than yours?
-
-```{r}
-# your code here
-```
